@@ -1,11 +1,7 @@
-import OrderDetails from "@/components/orders/order-details/order-details";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Order Details",
-  description: "View detailed information about an order.",
-};
+"use client";
+import { useParams } from "next/navigation";
+import { OrderView } from "@/components/panel/orders";
 
 export default function OrderDetailsPage() {
-  return <OrderDetails />;
+  return <OrderView id={String(useParams().id)} />;
 }

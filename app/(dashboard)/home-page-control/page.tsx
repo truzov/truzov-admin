@@ -1,5 +1,7 @@
-import HomePageBlockTable from "@/components/home-page-control/home-page-block-table";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export default function HomePageControlPage() {
-  return <HomePageBlockTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.homeBlocks} />;
 }
+

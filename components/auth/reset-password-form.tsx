@@ -32,7 +32,7 @@ export function ResetPasswordForm() {
           Reset Password
         </h1>
         <p className="text-gray-600 font-public-sans text-sm">
-          Enter your email address, and we'll send you instructions to reset
+          Enter your email address, and we&apos;ll send you instructions to reset
           your password.
         </p>
       </div>

@@ -1,49 +1,70 @@
-import type { Metadata } from "next";
-import DashboardStatsGrid from "@/components/dashboard/dashboard-stats-grid";
-import OrderStatusChart from "@/components/dashboard/order-status-chart";
-import AccommodationRevenueChart from "@/components/dashboard/accommodation-revenue-chart";
-import OrderFulfillmentStatus from "@/components/dashboard/order-fullfillment-status-progress";
-import RecentOrdersTable from "@/components/dashboard/recent-order-table";
-import TopCountryCard from "@/components/dashboard/top-country-card";
-import StockUpdateTable from "@/components/dashboard/stock-update-table";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Sellzy Admin Dashboard overview.",
-};
+import Link from "next/link";
+import OrderStatusChart from "@/components/dashboard/order-status-chart";
+import { Card, DataTable, ErrorState, StatCard, StatusBadge, useApi } from "@/components/panel/kit";
+import * as api from "@/lib/api/panel";
+import { useAuth } from "@/lib/auth";
+import { formatDate, formatINR } from "@/lib/money";
+import type { AdminStats, OrderRow, VendorStats } from "@/types/api";
 
 export default function Home() {
+  const { user } = useAuth();
+  const admin = user?.role === "admin";
+  const stats = useApi<AdminStats | VendorStats>(() => (admin ? api.adminStats() : api.vendorStats()), [admin]);
+  const recent = useApi(() => api.listOrders(admin, { limit: 5 }), [admin]);
+
+  const s = stats.data;
+  const cards: [string, React.ReactNode][] = !s
+    ? []
+    : "totalCustomers" in s
+      ? [
+          ["Total sales", formatINR(s.totalSales)],
+          ["Total orders", s.totalOrders],
+          ["Customers", s.totalCustomers],
+          ["Active sellers", s.totalSellers],
+          ["Sellers awaiting review", s.pendingSellers],
+          ["Pending payouts", `${s.pendingWithdrawals} · ${formatINR(s.pendingWithdrawalAmount)}`],
+        ]
+      : [
+          ["Total sales", formatINR(s.totalSales)],
+          ["Orders", s.totalOrders],
+          ["Available balance", formatINR(s.balance)],
+          ["Products", s.productCount],
+          ["Low stock (≤5)", s.lowStockCount],
+        ];
+
   return (
-    <div className="space-y-6 bg-white p-4  sm:p-6 rounded-2xl">
-      {/* Stats Grid */}
-      <DashboardStatsGrid />
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6">
-        {/* Order Status Chart */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="sm:col-span-2 order-1">
-            <OrderStatusChart />
-          </div>
-          <div className="lg:col-span-1 order-4 lg:order-2">
-            <TopCountryCard />
-          </div>
-          <div className="sm:col-span-2 order-2 lg:order-3">
-            <AccommodationRevenueChart />
-          </div>
-          <div className="lg:col-span-1 order-3">
-            <OrderFulfillmentStatus />
-          </div>
+    <div className="space-y-6">
+      {stats.error ? (
+        <Card>
+          <ErrorState error={stats.error} onRetry={stats.reload} />
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {stats.loading && !s ? <StatCard label="Loading…" value="—" /> : cards.map(([l, v]) => <StatCard key={l} label={l} value={v} />)}
         </div>
-      </div>
+      )}
 
-      <div className="mt-4 sm:mt-6">
-        <RecentOrdersTable />
-      </div>
+      {s && <OrderStatusChart counts={s.ordersByStatus} />}
 
-      <div className="mt-4 sm:mt-6">
-        <StockUpdateTable />
-      </div>
+      <Card title="Recent orders" actions={<Link href="/orders" className="text-sm font-semibold text-primary">View all</Link>}>
+        <DataTable<OrderRow>
+          rows={recent.data?.items}
+          loading={recent.loading}
+          error={recent.error}
+          onRetry={recent.reload}
+          empty="No orders yet."
+          columns={[
+            { header: "Order", cell: (o) => <Link href={`/orders/${o.id}`} className="font-semibold text-primary">{o.orderNumber}</Link> },
+            { header: "Customer", cell: (o) => o.customerName },
+            { header: "Items", cell: (o) => o.itemCount },
+            { header: "Amount", cell: (o) => formatINR(o.amount) },
+            { header: "Status", cell: (o) => <StatusBadge status={o.status} /> },
+            { header: "Date", cell: (o) => formatDate(o.createdAt) },
+          ]}
+        />
+      </Card>
     </div>
   );
 }

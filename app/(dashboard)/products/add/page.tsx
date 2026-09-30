@@ -1,11 +1,5 @@
-import AddProductForm from "@/components/products/add-product-form";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Add Product",
-  description: "Add a new product to your catalog.",
-};
+import { ProductForm } from "@/components/panel/products";
 
 export default function AddProduct() {
-  return <AddProductForm />;
+  return <ProductForm />;
 }

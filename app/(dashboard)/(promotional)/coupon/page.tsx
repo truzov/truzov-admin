@@ -1,17 +1,7 @@
-import CouponOverviewGrid from "@/components/coupon/coupon-overview-grid";
-import CouponTable from "@/components/coupon/coupon-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Coupons",
-  description: "Manage discount coupons and promotions.",
-};
-
-export default function CouponPage() {
-  return (
-    <div className="space-y-4 sm:space-y-6 bg-white rounded-2xl">
-      <CouponOverviewGrid />
-      <CouponTable />
-    </div>
-  );
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.coupons} />;
 }
+

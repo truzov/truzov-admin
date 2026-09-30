@@ -1,11 +1,5 @@
-import SellerList from "@/components/seller/seller-list";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sellers",
-  description: "View and manage registered sellers.",
-};
+import { SellerList } from "@/components/panel/sellers";
 
 export default function SellersPage() {
-  return <SellerList />;
+  return <SellerList title="Sellers" />;
 }

@@ -1,11 +1,7 @@
-import FaqTable from "@/components/faqs/faq-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Manage frequently asked questions.",
-};
-
-export default function FaqPage() {
-  return <FaqTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.faqs} />;
 }
+

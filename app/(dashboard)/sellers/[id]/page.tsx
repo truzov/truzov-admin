@@ -1,5 +1,7 @@
-import SellerDetails from "@/components/seller/seller-details";
+"use client";
+import { useParams } from "next/navigation";
+import { SellerReview } from "@/components/panel/sellers";
 
 export default function Page() {
-  return <SellerDetails />;
+  return <SellerReview id={String(useParams().id)} />;
 }

@@ -1,5 +1,7 @@
-import AttributeList from "@/components/categories/attribute-list";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
 export default function Page() {
-  return <AttributeList />;
+  return <ResourceScreen config={RESOURCES.attributes} />;
 }
+

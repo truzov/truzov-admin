@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Public_Sans, Urbanist } from "next/font/google";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -23,11 +24,10 @@ const urbanist = Urbanist({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Sellzy - Admin Dashboard",
-    default: "Sellzy - Admin Dashboard",
+    template: "%s | Truzov Seller & Admin",
+    default: "Truzov Seller & Admin",
   },
-  description:
-    "Sellzy is a modern e-commerce admin dashboard built with Next.js, Tailwind CSS, and TypeScript.",
+  description: "Truzov marketplace admin and seller panel.",
 };
 
 export default function RootLayout({
@@ -40,7 +40,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${publicSans.variable} ${urbanist.variable}  antialiased`}
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Toaster
           toastOptions={{
             classNames: {

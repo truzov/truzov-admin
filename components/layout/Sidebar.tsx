@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { navItems } from "./nav-data";
 import { SidebarHeader } from "./sidebar/sidebar-header";
@@ -9,13 +9,14 @@ import { SidebarMenuLink } from "./sidebar/sidebar-menu-link";
 import { SidebarSubmenu } from "./sidebar/sidebar-submenu";
 import Link from "next/link";
 import { DashboardGridIcon, MoreHorizontalIcon } from "@/icons";
+import { isAllowed, type PanelRole } from "@/lib/roles";
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
   isCollapsed?: boolean;
   toggleCollapse?: () => void;
-  initialUserRole?: "master" | "seller";
+  userRole: PanelRole;
 }
 
 export default function Sidebar({
@@ -23,54 +24,26 @@ export default function Sidebar({
   onClose,
   isCollapsed,
   toggleCollapse,
-  initialUserRole = "master",
+  userRole,
 }: SidebarProps) {
   const pathname = usePathname();
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
-  const [userRole, setUserRole] = useState<"master" | "seller">(
-    initialUserRole,
-  );
 
-  useEffect(() => {
-    Promise.resolve().then(() => {
-      const storedRole = localStorage.getItem("userRole");
-      if (storedRole === "seller" || storedRole === "master") {
-        setUserRole(storedRole as "master" | "seller");
-      }
-    });
-  }, []);
-
-  // Filter navigation items based on the active role
+  // Only screens wired to the backend for this role (lib/roles.ts).
   const filteredNavItems = useMemo(() => {
     return navItems
       .map((group) => {
-        if (userRole === "seller" && group.items) {
-          const allowedSellerItems = [
-            "Manage Product",
-            "Categories & Attributes",
-            "Manage Inventory",
-            "Orders",
-            "Users",
-            "Sales reports",
-            "Earning",
-            "Withdraws",
-            "Refunds",
-            "Coupon",
-            "Inbox",
-          ];
-
-          const filteredGroupItems = group.items.filter((item) =>
-            allowedSellerItems.includes(item.label),
+        if (!group.items) return group;
+        const items = group.items
+          .map((item) =>
+            item.subItems
+              ? { ...item, subItems: item.subItems.filter((s) => isAllowed(userRole, s.href)) }
+              : item,
+          )
+          .filter((item) =>
+            item.subItems ? item.subItems.length > 0 : !!item.href && isAllowed(userRole, item.href),
           );
-
-          if (filteredGroupItems.length === 0) return null;
-
-          return {
-            ...group,
-            items: filteredGroupItems,
-          };
-        }
-        return group;
+        return items.length ? { ...group, items } : null;
       })
       .filter(Boolean) as typeof navItems;
   }, [userRole]);

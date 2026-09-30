@@ -2,122 +2,141 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { FloatingInput } from "@/components/ui/floating-input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { FacebookIcon, GoogleIcon } from "../../icons";
+import * as api from "@/lib/api/panel";
+import { errorMessage, fieldError } from "@/lib/api/errors";
+import { useAuth } from "@/lib/auth";
 
+/**
+ * Seller signup reuses the store's signup + phone OTP. The new account is a
+ * customer; it becomes a seller only after KYC is approved (see /onboarding).
+ */
 export function SignupForm() {
-  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
+  const router = useRouter();
+  const { startSession } = useAuth();
+  const [busy, setBusy] = React.useState(false);
+  const [otpSession, setOtpSession] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<unknown>(null);
+
+  const onSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    if (f.get("password") !== f.get("confirm")) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const email = String(f.get("email")).trim();
+      const res = await api.signup({
+        fullName: String(f.get("fullName")).trim(),
+        email: email || undefined,
+        phone: String(f.get("phone")).trim(),
+        password: String(f.get("password")),
+      });
+      if (!res.otpSessionId) {
+        toast.success("Account created. Please sign in.");
+        router.replace("/signin");
+        return;
+      }
+      setOtpSession(res.otpSessionId);
+      toast.success("We sent a code to your phone.");
+    } catch (err) {
+      setError(err);
+      toast.error(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onVerify = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const code = String(new FormData(e.currentTarget).get("code")).trim();
+    setBusy(true);
+    try {
+      startSession(await api.verifyOtp(otpSession!, code));
+      router.replace("/onboarding");
+    } catch (err) {
+      toast.error(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const hint = (field: string) => {
+    const msg = fieldError(error, field);
+    return msg ? <p className="text-xs text-error mt-1 px-3.5">{msg}</p> : null;
+  };
 
   return (
     <div>
-      {/* Logos & Illustration */}
       <div className="flex flex-col items-start mb-8">
-        <Link href="/" className="mb-8">
-          <Image
-            src="/images/auth/logo.png"
-            alt="Sellzy"
-            width={150}
-            height={50}
-            className="h-10 w-auto"
-          />
-        </Link>
         <div className="relative mb-6">
-          <Image
-            src="/images/auth/sigup-illustration.png"
-            alt="Sign Up Illustration"
-            width={120}
-            height={120}
-            className="w-28 h-28 object-contain"
-          />
+          <Image src="/images/auth/sigup-illustration.png" alt="" width={120} height={120} className="w-28 h-28 object-contain" />
         </div>
         <h1 className="text-2xl font-public-sans font-bold text-light-primary-text mb-2">
-          Sign Up
+          {otpSession ? "Verify your phone" : "Become a seller"}
         </h1>
         <p className="text-gray-600 font-public-sans text-sm">
-          First Create our platform? Sign up in with seconds.
+          {otpSession
+            ? "Enter the code we sent by SMS."
+            : "Create your account, then complete KYC. An admin reviews every seller before the panel unlocks."}
         </p>
       </div>
 
-      {/* Social Login */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <button
-          type="button"
-          className="flex items-center font-bold h-12 text-light-primary-text font-public-sans justify-center gap-2 py-3 px-4 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-        >
-          <GoogleIcon />
-          Google
-        </button>
-        <button
-          type="button"
-          className="flex items-center font-bold h-12 text-light-primary-text font-public-sans justify-center gap-2 py-3 px-4 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-        >
-          <FacebookIcon />
-          Facebook
-        </button>
-      </div>
-
-      <div className="relative my-5">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-500/20"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-light-secondary-text">Or</span>
-        </div>
-      </div>
-
-      {/* Form */}
-      <form className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FloatingInput label="Name" id="name" type="text" className="h-12" />
+      {otpSession ? (
+        <form className="space-y-4" onSubmit={onVerify}>
           <FloatingInput
-            label="Email"
-            id="email"
-            type="email"
+            label="OTP code"
+            id="code"
+            name="code"
+            inputMode="numeric"
+            pattern="\d{4,10}"
+            required
+            autoComplete="one-time-code"
             className="h-12"
           />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FloatingInput
-            label="Password"
-            id="password"
-            type="password"
-            className="h-12"
-          />
-          <FloatingInput
-            label="Confirm password"
-            id="confirm-password"
-            type="password"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 mt-2">
-          <Checkbox
-            id="terms"
-            checked={acceptedTerms}
-            onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-          />
-          <label
-            htmlFor="terms"
-            className="text-sm font-public-sans text-light-secondary-text font-medium cursor-pointer"
-          >
-            I accept Terms and Conditions
-          </label>
-        </div>
-
-        <Button type="submit" className="w-full h-12 py-3 text-base mt-6">
-          Sign Up
-        </Button>
-      </form>
+          <Button type="submit" className="w-full h-12 py-3 text-base" disabled={busy}>
+            {busy ? "Verifying…" : "Verify"}
+          </Button>
+        </form>
+      ) : (
+        <form className="space-y-4" onSubmit={onSignup}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <FloatingInput label="Full name" id="fullName" name="fullName" required minLength={2} className="h-12" />
+              {hint("fullName")}
+            </div>
+            <div>
+              <FloatingInput label="Phone (10 digits)" id="phone" name="phone" required inputMode="tel" pattern="\d{10}|\+[1-9]\d{7,14}" className="h-12" />
+              {hint("phone")}
+            </div>
+          </div>
+          <div>
+            <FloatingInput label="Email (optional)" id="email" name="email" type="email" className="h-12" />
+            {hint("email")}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <FloatingInput label="Password" id="password" name="password" type="password" required minLength={8} autoComplete="new-password" className="h-12" />
+              {hint("password")}
+            </div>
+            <FloatingInput label="Confirm password" id="confirm" name="confirm" type="password" required autoComplete="new-password" className="h-12" />
+          </div>
+          <Button type="submit" className="w-full h-12 py-3 text-base mt-6" disabled={busy}>
+            {busy ? "Creating…" : "Sign Up"}
+          </Button>
+        </form>
+      )}
 
       <p className="mt-10 text-sm text-light-secondary-text text-center">
-        I already have an account?{" "}
-        <Link
-          href="/signin"
-          className="ml-2 font-bold text-primary hover:text-primary-dark"
-        >
-          Sign In
+        Already have an account?{" "}
+        <Link href="/signin" className="ml-2 font-bold text-primary hover:text-primary-dark">
+          Seller login
         </Link>
       </p>
     </div>

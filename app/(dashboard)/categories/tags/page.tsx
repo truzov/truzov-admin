@@ -1,9 +1,7 @@
-import TagList from "@/components/categories/tag-list";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
 export default function Page() {
-  return (
-    <div>
-      <TagList />
-    </div>
-  );
+  return <ResourceScreen config={RESOURCES.tags} />;
 }
+

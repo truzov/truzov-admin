@@ -1,11 +1,7 @@
-import PrivacyTable from "@/components/privacy-and-policy/privacy-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Manage shop privacy policy and data handling.",
-};
-
-export default function PrivacyAndPolicyPage() {
-  return <PrivacyTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.privacy} />;
 }
+

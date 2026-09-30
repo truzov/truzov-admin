@@ -1,13 +1,6 @@
-import StockOverview from "@/components/products/stock-products/stock-overview";
-import StockProductTable from "@/components/products/stock-products/stock-product-table";
+﻿import * as Ops from "@/components/panel/ops";
 
-export default function StockProductsPage() {
-  return (
-    <div className="bg-white rounded-2xl pt-4 sm:pt-6">
-      <div className="px-4 sm:px-6">
-        <StockOverview />
-      </div>
-      <StockProductTable />
-    </div>
-  );
+export default function Page() {
+  return <Ops.InventoryScreen lowOnly />;
 }
+

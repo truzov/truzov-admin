@@ -1,15 +1,7 @@
-import TaxTable from "@/components/finance/tax/tax-table";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Tax",
-  description: "Manage tax settings and reports.",
-};
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
 export default function Page() {
-  return (
-    <div>
-      <TaxTable />
-    </div>
-  );
+  return <ResourceScreen config={RESOURCES.taxes} />;
 }
+

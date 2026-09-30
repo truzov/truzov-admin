@@ -1,5 +1,6 @@
-import ProductReviewTable from "@/components/products/product-review-table";
+﻿import * as Ops from "@/components/panel/ops";
 
-export default function ProductReviewPage() {
-  return <ProductReviewTable />;
+export default function Page() {
+  return <Ops.ReviewsScreen />;
 }
+

@@ -1,11 +1,6 @@
-import TopProductsTable from "@/components/top-products/top-product-table";
-import type { Metadata } from "next";
+﻿import * as Ops from "@/components/panel/ops";
 
-export const metadata: Metadata = {
-  title: "Top Products",
-  description: "View top performing products.",
-};
-
-export default function TopProductsPage() {
-  return <TopProductsTable />;
+export default function Page() {
+  return <Ops.TopProductsScreen />;
 }
+
