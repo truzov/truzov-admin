@@ -1,5 +1,6 @@
-import TransactionTable from "@/components/transactions/transaction-table";
+﻿import * as Ops from "@/components/panel/ops";
 
-export default function TransacetionsPage() {
-  return <TransactionTable />;
+export default function Page() {
+  return <Ops.TransactionsScreen />;
 }
+

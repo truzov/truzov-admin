@@ -1,5 +1,7 @@
-import PaymentMethodTable from "@/components/payment-method/payment-method-table";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export default function PaymentMethodPage() {
-  return <PaymentMethodTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.paymentMethods} />;
 }
+

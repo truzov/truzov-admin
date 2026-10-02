@@ -1,11 +1,6 @@
-import UsersTable from "@/components/users/users-table";
-import type { Metadata } from "next";
+﻿import * as Ops from "@/components/panel/ops";
 
-export const metadata: Metadata = {
-  title: "Users",
-  description: "View and manage application users.",
-};
-
-export default function UsersPage() {
-  return <UsersTable />;
+export default function Page() {
+  return <Ops.UsersScreen />;
 }
+

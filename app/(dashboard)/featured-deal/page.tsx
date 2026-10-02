@@ -1,11 +1,7 @@
-import FeatureDealTable from "@/components/featured-deal/feature-deal-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Featured Deals",
-  description: "Manage featured deals and special offers.",
-};
-
-export default function FeaturedDealPage() {
-  return <FeatureDealTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.featuredDeals} />;
 }
+

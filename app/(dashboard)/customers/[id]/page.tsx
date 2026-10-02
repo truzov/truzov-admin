@@ -1,11 +1,7 @@
-import { Metadata } from "next";
-import CustomerDetailsView from "@/components/customers/customer-details-view";
-
-export const metadata: Metadata = {
-  title: "Customer Details",
-  description: "View customer details and order history",
-};
+"use client";
+import { useParams } from "next/navigation";
+import { CustomerView } from "@/components/panel/orders";
 
 export default function CustomerDetailsPage() {
-  return <CustomerDetailsView />;
+  return <CustomerView id={String(useParams().id)} />;
 }

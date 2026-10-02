@@ -1,9 +1,6 @@
-import ReturnAndRefundTable from "@/components/orders/return-and-refund-table";
+﻿import * as Ops from "@/components/panel/ops";
 
-export default function ReturnAndRefundPage() {
-  return (
-    <div>
-      <ReturnAndRefundTable />{" "}
-    </div>
-  );
+export default function Page() {
+  return <Ops.RefundsScreen />;
 }
+

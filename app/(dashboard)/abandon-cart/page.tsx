@@ -1,11 +1,6 @@
-import AbandonCartList from "@/components/abandon-cart/abandon-cart-list";
-import type { Metadata } from "next";
+﻿import * as Ops from "@/components/panel/ops";
 
-export const metadata: Metadata = {
-  title: "Abandoned Cart",
-  description: "View and manage abandoned shopping carts.",
-};
-
-export default function AbandonCartPage() {
-  return <AbandonCartList />;
+export default function Page() {
+  return <Ops.AbandonedCartsScreen />;
 }
+

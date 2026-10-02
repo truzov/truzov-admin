@@ -1,11 +1,6 @@
-import InventoryTable from "@/components/inventory/inventory-table";
-import type { Metadata } from "next";
+﻿import * as Ops from "@/components/panel/ops";
 
-export const metadata: Metadata = {
-  title: "Inventory",
-  description: "Track and manage product inventory.",
-};
-
-export default function InventoryPage() {
-  return <InventoryTable />;
+export default function Page() {
+  return <Ops.InventoryScreen />;
 }
+

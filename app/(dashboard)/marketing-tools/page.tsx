@@ -1,11 +1,7 @@
-import MarketingToolList from "@/components/marketing-tool/marketing-tool-list";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Marketing Tools",
-  description: "Manage marketing tools and integrations.",
-};
-
-export default function MarketingToolPage() {
-  return <MarketingToolList />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.marketingTools} />;
 }
+

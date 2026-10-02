@@ -1,15 +1,7 @@
-import EditProductForm from "@/components/products/edit-product-form";
-import type { Metadata } from "next";
+"use client";
+import { useParams } from "next/navigation";
+import { ProductForm } from "@/components/panel/products";
 
-export const metadata: Metadata = {
-  title: "Edit Product",
-  description: "Edit existing product details.",
-};
-
-export default function EditProductPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  return <EditProductForm />;
+export default function EditProductPage() {
+  return <ProductForm id={String(useParams().id)} />;
 }

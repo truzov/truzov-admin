@@ -1,5 +1,6 @@
-import AbandonOrderTable from "@/components/orders/abandon-order-table";
+﻿import * as Ops from "@/components/panel/ops";
 
 export default function Page() {
-  return <AbandonOrderTable />;
+  return <Ops.AbandonedCartsScreen />;
 }
+

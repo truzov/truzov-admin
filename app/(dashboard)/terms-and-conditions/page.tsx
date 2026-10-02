@@ -1,11 +1,7 @@
-import TermsAndConditionTable from "@/components/terms-and-conditions/terms-and-condition-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions",
-  description: "Manage shop terms and conditions.",
-};
-
-export default function TermsAndConditionsPage() {
-  return <TermsAndConditionTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.terms} />;
 }
+

@@ -1,11 +1,7 @@
-import PromoPopupTable from "@/components/promo-popup/promo-popup-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Promo Popups",
-  description: "Manage promotional popups for your storefront.",
-};
-
-export default function PromoPopupPage() {
-  return <PromoPopupTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.promoPopups} />;
 }
+

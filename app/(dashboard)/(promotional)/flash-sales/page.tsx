@@ -1,11 +1,7 @@
-import FlashSaleTable from "@/components/flash-sale/flash-sale-table";
-import type { Metadata } from "next";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export const metadata: Metadata = {
-  title: "Flash Sales",
-  description: "Manage flash sales and limited time offers.",
-};
-
-export default function FlashSalesPage() {
-  return <FlashSaleTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.flashSales} />;
 }
+

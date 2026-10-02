@@ -1,5 +1,7 @@
-import ClearanceTable from "@/components/clearance/clearance-table";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export default function ClearanceSalesPage() {
-  return <ClearanceTable />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.clearanceDeals} />;
 }
+

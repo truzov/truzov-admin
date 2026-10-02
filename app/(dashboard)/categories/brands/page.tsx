@@ -1,5 +1,7 @@
-import BrandList from "@/components/categories/brand-list";
+﻿import { ResourceScreen } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export default function BrandsPage() {
-  return <BrandList />;
+export default function Page() {
+  return <ResourceScreen config={RESOURCES.brands} />;
 }
+

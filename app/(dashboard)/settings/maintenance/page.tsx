@@ -1,16 +1,7 @@
-import React from "react";
-import MaintenanceForm from "@/components/settings/maintainace/maintainance-form";
-import type { Metadata } from "next";
+import { SettingsForm } from "@/components/panel/settings";
+import { SETTINGS } from "@/components/panel/settings-fields";
 
-export const metadata: Metadata = {
-  title: "Maintenance Mode",
-  description: "Manage shop maintenance mode settings.",
-};
-
-export default function MaintenancePage() {
-  return (
-    <div className="space-y-6">
-      <MaintenanceForm />
-    </div>
-  );
+export default function Page() {
+  return <SettingsForm settingKey="maintenance" title="Maintenance mode" description="When enabled, the storefront shows this message instead of the shop." fields={SETTINGS.maintenance} />;
 }
+

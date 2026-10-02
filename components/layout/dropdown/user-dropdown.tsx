@@ -1,24 +1,24 @@
 "use client";
-import { useState, useEffect } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { ChevronDown, DashboardGridIcon, LogoutIcon } from "@/icons";
 import Link from "next/link";
-import { ChevronDown } from "@/icons";
-import { DashboardGridIcon, LogoutIcon, SettingsIcon, UserIcon } from "@/icons";
+import { useAuth } from "@/lib/auth";
 
 export default function UserDropdown() {
-  const [userRole, setUserRole] = useState<"master" | "seller">("master");
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const initials = (user?.name ?? "?")
+    .split(" ")
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
-  useEffect(() => {
-    Promise.resolve().then(() => {
-      if (typeof window !== "undefined") {
-        const storedRole = localStorage.getItem("userRole");
-        if (storedRole === "seller" || storedRole === "master") {
-          setUserRole(storedRole as "master" | "seller");
-        }
-      }
-    });
-  }, []);
+  const onLogout = async () => {
+    await logout();
+    router.replace("/signin");
+  };
 
   return (
     <div className="text-right">
@@ -26,31 +26,19 @@ export default function UserDropdown() {
         {({ open }) => (
           <>
             <MenuButton className="inline-flex items-center gap-2 w-full justify-center focus:outline-none  text-sm">
-              <span className="h-8 w-8 relative rounded-full overflow-hidden block">
-                <Image
-                  src={
-                    userRole === "seller"
-                      ? "/images/seller/seller-grid/user_03.png"
-                      : "/images/user/user_05.png"
-                  }
-                  alt="User"
-                  width={32}
-                  height={32}
-                  className="object-cover"
-                />
+              <span className="h-8 w-8 rounded-full bg-primary-lighter text-primary flex items-center justify-center text-xs font-bold">
+                {initials}
               </span>
               <span className="hidden text-left md:block">
                 <span className="text-sm font-semibold text-text-primary-text block">
-                  {userRole === "seller" ? "Alex Smith" : "John Smith"}
+                  {user?.name}
                 </span>
                 <span className="text-xs text-text-secondary-text block capitalize">
-                  {userRole}
+                  {user?.role === "admin" ? "Admin" : "Seller"}
                 </span>
               </span>
               <ChevronDown
-                className={`size-5 text-text-primary-text transition-transform duration-200 ${
-                  open ? "rotate-180" : ""
-                }`}
+                className={`size-5 text-text-primary-text transition-transform duration-200 ${open ? "rotate-180" : ""}`}
                 aria-hidden="true"
               />
             </MenuButton>
@@ -61,66 +49,25 @@ export default function UserDropdown() {
             >
               <div className="px-1 py-1">
                 <MenuItem>
-                  {({ focus }) => (
-                    <Link
-                      href="/settings/general"
-                      className={`${
-                        focus
-                          ? "hover:bg-gray-200 bg-transparent text-light-secondary-text"
-                          : "text-light-secondary-text"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2`}
-                    >
-                      <UserIcon className="h-4 w-4" />
-                      Profile
-                    </Link>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ focus }) => (
-                    <Link
-                      href="/"
-                      className={`${
-                        focus
-                          ? "hover:bg-gray-200 bg-transparent text-light-secondary-text"
-                          : "text-light-secondary-text"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2`}
-                    >
-                      <DashboardGridIcon className="h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ focus }) => (
-                    <Link
-                      href="/settings/general"
-                      className={`${
-                        focus
-                          ? "hover:bg-gray-200 bg-transparent text-light-secondary-text"
-                          : "text-light-secondary-text"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2`}
-                    >
-                      <SettingsIcon className="h-4 w-4" />
-                      Settings
-                    </Link>
-                  )}
+                  <Link
+                    href="/"
+                    className="text-light-secondary-text data-focus:bg-gray-200 group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2"
+                  >
+                    <DashboardGridIcon className="h-4 w-4" />
+                    Dashboard
+                  </Link>
                 </MenuItem>
               </div>
               <div className="px-1 py-1">
                 <MenuItem>
-                  {({ focus }) => (
-                    <Link
-                      href="/signin"
-                      className={`${
-                        focus
-                          ? "hover:bg-gray-200 bg-transparent text-light-secondary-text"
-                          : "text-light-secondary-text"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2 border-t border-gray-100`}
-                    >
-                      <LogoutIcon className="h-4 w-4" />
-                      Logout
-                    </Link>
-                  )}
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="text-light-secondary-text data-focus:bg-gray-200 group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2"
+                  >
+                    <LogoutIcon className="h-4 w-4" />
+                    Logout
+                  </button>
                 </MenuItem>
               </div>
             </MenuItems>
