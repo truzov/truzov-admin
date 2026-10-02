@@ -16,7 +16,7 @@ export function SidebarHeader({
   userRole,
 }: SidebarHeaderProps) {
   return (
-    <div className="p-4 flex items-center relative gap-2 shrink-0 h-[70px]">
+    <div className="p-4 flex items-center relative gap-2 shrink-0 h-[70px] bg-brand-cream">
       <Link
         href="/"
         className={`transition-opacity duration-300 ${
@@ -24,15 +24,11 @@ export function SidebarHeader({
         }`}
       >
         <Image
-          src={
-            userRole === "seller"
-              ? "/images/logo/logo-green.svg"
-              : "/images/logo/logo-white.svg"
-          }
-          alt="Logo"
-          width={userRole === "seller" ? 114 : 114}
-          height={userRole === "seller" ? 37 : 37}
-          className="max-w-none"
+          src="/images/logo/truzov-logo.png"
+          alt="Truzov home"
+          width={156}
+          height={54}
+          className="w-[156px] h-[48px] object-contain"
         />
       </Link>
 
@@ -44,19 +40,16 @@ export function SidebarHeader({
         }`}
       >
         <Image
-          src={
-            userRole === "seller"
-              ? "/images/logo/logo-green-icon.svg"
-              : "/images/logo/logo-white-icon.svg"
-          }
-          alt="Logo"
-          width={32}
+          src="/images/logo/truzov-logo.png"
+          alt="Truzov home"
+          width={48}
           height={32}
-          className={`max-w-none`}
+          className="w-12 h-8 object-contain"
         />
       </Link>
 
       <button
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         onClick={toggleCollapse}
         className={`hidden xl:inline-flex size-10 absolute -right-5 top-1/2 -translate-y-1/2 rounded-full justify-center items-center shadow-md z-50 transition-transform duration-300 ${
           isCollapsed ? "rotate-180" : ""
@@ -71,11 +64,12 @@ export function SidebarHeader({
 
       {/* Mobile Close Button */}
       <button
+        aria-label="Close sidebar"
         onClick={onClose}
         className={`xl:hidden absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md ${
           userRole === "seller"
             ? "text-gray-600 hover:bg-gray-100"
-            : "text-white hover:bg-white/10"
+            : "text-primary-darker hover:bg-primary-lighter"
         }`}
       >
         <CloseIcon className="size-6" />

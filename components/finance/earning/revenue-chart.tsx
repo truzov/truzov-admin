@@ -32,7 +32,7 @@ const RevenueChart = () => {
       },
       fontFamily: "Public Sans, sans-serif",
     },
-    colors: ["#088178", "#FFC107"],
+    colors: ["#245747", "#FFC107"],
     fill: {
       type: "gradient",
       gradient: {

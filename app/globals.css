@@ -1,38 +1,40 @@
 @import "tailwindcss";
 
 @theme {
+  --color-brand-cream: #fdfbf7;
+  --color-brand-sage: #eaf3de;
   --font-public-sans: var(--font-public-sans);
   --font-urbanist: var(--font-urbanist);
   --font-dm-sans: var(--font-dm-sans);
 
-  --color-accent-1: #a0e2e0;
-  --color-accent-2: #ffeb69;
-  --color-accent-3: #ffc091;
-  --color-accent-4: #ffd6ef;
-  --color-accent-5: #92bdf5;
-  --color-accent-6: #fab851;
-  --color-accent-7: #9ee872;
+  --color-accent-1: #eaf3de;
+  --color-accent-2: #e8cf93;
+  --color-accent-3: #d5a38e;
+  --color-accent-4: #ead8cc;
+  --color-accent-5: #b6c9ae;
+  --color-accent-6: #c99a38;
+  --color-accent-7: #a4bc92;
 
-  --color-light-primary-text: #212529;
-  --color-light-secondary-text: #495057;
+  --color-light-primary-text: #04342c;
+  --color-light-secondary-text: #547064;
   --color-light-disabled-text: #919eab;
 
   --color-dark-primary-text: #ffffff;
   --color-dark-secondary-text: #919eab;
   --color-dark-disabled-text: #637381;
 
-  --color-primary-lighter: #caf8e4;
-  --color-primary-light: #5ed9ba;
-  --color-primary: #088178;
-  --color-primary-dark: #056d6e;
-  --color-primary-darker: #04535c;
-  --color-primary-alpha-16: rgba(0, 171, 85, 0.16);
+  --color-primary-lighter: #eaf3de;
+  --color-primary-light: #a4bc92;
+  --color-primary: #245747;
+  --color-primary-dark: #315f4f;
+  --color-primary-darker: #04342c;
+  --color-primary-alpha-16: rgba(4, 52, 44, 0.16);
 
-  --color-secondary-lighter: #d6e4ff;
-  --color-secondary-light: #84a9ff;
-  --color-secondary: #3366ff;
-  --color-secondary-dark: #1939b7;
-  --color-secondary-darker: #091a7a;
+  --color-secondary-lighter: #f4e6dc;
+  --color-secondary-light: #d5a38e;
+  --color-secondary: #bd6d4f;
+  --color-secondary-dark: #985338;
+  --color-secondary-darker: #713d2b;
 
   --color-info-lighter: #d0f2ff;
   --color-info-light: #74caff;
@@ -85,8 +87,8 @@
   --shadow-dark-z-20: 0px 20px 40px -4px rgba(0, 0, 0, 0.12);
   --shadow-dark-z-24: 0px 24px 48px 0px rgba(0, 0, 0, 0.12);
 
-  --shadow-color-primary: 0px 6px 15px 0px rgba(8, 129, 120, 0.16);
-  --shadow-color-secondary: 0px 8px 16px 0px rgba(51, 102, 255, 0.24);
+  --shadow-color-primary: 0px 6px 15px 0px rgba(4, 52, 44, 0.16);
+  --shadow-color-secondary: 0px 8px 16px 0px rgba(189, 109, 79, 0.24);
   --shadow-color-info: 0px 8px 16px 0px rgba(24, 144, 255, 0.24);
   --shadow-color-success: 0px 8px 16px 0px rgba(84, 214, 44, 0.24);
   --shadow-color-warning: 0px 8px 16px 0px rgba(255, 193, 7, 0.24);
@@ -175,10 +177,10 @@ button {
     border-radius: 10px;
   }
   &:hover::-webkit-scrollbar-thumb {
-    background-color: #5ed9ba;
+    background-color: #a4bc92;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background-color: #5ed9ba;
+    background-color: #a4bc92;
   }
 }
 
