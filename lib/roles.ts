@@ -33,7 +33,7 @@ const ROUTES: Record<PanelRole, RegExp[]> = {
       "/users", "/admin-users", "/sellers", "/sellers/pending", "/customers",
       "/sales-reports", "/seller-performance", "/top-products",
       "/earning", "/withdraws", "/refunds", "/tax",
-      "/coupon", "/flash-sales", "/featured-deal", "/clearance-sale",
+      "/coupon", "/coupon/add", "/flash-sales", "/featured-deal", "/clearance-sale",
       "/home-page-control", "/promo-popup", "/faq", "/privacy-and-policy", "/terms-and-conditions",
       "/inbox", "/support",
       "/settings/general", "/settings/shop", "/settings/seo", "/settings/payment-api", "/settings/maintenance",
@@ -42,6 +42,8 @@ const ROUTES: Record<PanelRole, RegExp[]> = {
     ORDERS,
     new RegExp(`^/sellers/${id("add", "edit", "seller-grid", "pending")}$`),
     new RegExp(`^/customers/${id("add", "edit")}$`),
+    new RegExp(`^/coupon/${id("add", "edit")}$`),
+    /^\/coupon\/edit\/[^/]+$/,
   ],
   seller: [
     ...exact(

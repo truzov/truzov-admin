@@ -11,6 +11,7 @@ import { ImageUpload } from "@/components/panel/image-upload";
 import * as api from "@/lib/api/panel";
 import { errorMessage } from "@/lib/api/errors";
 import type { CategoryDto } from "@/types/api";
+import { parseSortOrder } from "@/lib/forms";
 
 export function CategoryList() {
   const list = useApi(() => api.adminCategories(), []);
@@ -94,7 +95,7 @@ function CategoryFormInner({ existing, parents, onDone }: { existing?: CategoryD
     slug: existing?.slug ?? "",
     image: existing?.image ?? "",
     parentId: existing?.parentId ?? "",
-    sortOrder: existing?.sortOrder ?? 0,
+    sortOrder: String(existing?.sortOrder ?? 0),
     isActive: existing?.isActive ?? true,
   });
   const [busy, setBusy] = useState(false);
@@ -102,9 +103,9 @@ function CategoryFormInner({ existing, parents, onDone }: { existing?: CategoryD
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true);
-    const body = { ...form, image: form.image || undefined, parentId: form.parentId || undefined };
     try {
+      const body = { ...form, sortOrder: parseSortOrder(form.sortOrder), image: form.image || undefined, parentId: form.parentId || undefined };
+      setBusy(true);
       if (existing) await api.updateCategory(existing.id, body);
       else await api.createCategory(body);
       toast.success("Category saved.");
@@ -146,8 +147,8 @@ function CategoryFormInner({ existing, parents, onDone }: { existing?: CategoryD
               ))}
             </select>
           </Field>
-          <Field label="Sort order">
-            <input className={inputClass} type="number" min={0} max={10000} value={form.sortOrder} onChange={(e) => set("sortOrder", Number(e.target.value))} />
+          <Field label="Sort order" hint="Leave blank to use 0.">
+            <input aria-label="Sort order" className={inputClass} type="number" step={1} min={0} max={10000} value={form.sortOrder} onChange={(e) => set("sortOrder", e.target.value)} />
           </Field>
           <Field label="Image">
             <ImageUpload urls={form.image ? [form.image] : []} max={1} onChange={(u) => set("image", u[0] ?? "")} />

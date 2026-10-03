@@ -1,5 +1,7 @@
-import CouponDetails from "@/components/coupon/coupon-details";
+import { ResourceDetail } from "@/components/panel/resource-screen";
+import { RESOURCES } from "@/components/panel/resources";
 
-export default function CouponDetailsPage() {
-  return <CouponDetails />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <ResourceDetail config={RESOURCES.coupons} id={id} backHref="/coupon" />;
 }
