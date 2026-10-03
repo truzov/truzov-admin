@@ -9,7 +9,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 // The backend's order lifecycle (orders_status_check), in lifecycle order.
 const STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "returned"];
-const COLORS = ["#826AF9", "#2D99FF", "#00AAEC", "#2CD9C5", "#FFEF5A", "#E02D69", "#CB0233"];
+const COLORS = ["#C99A38", "#04342C", "#547064", "#76966C", "#A4BC92", "#BD6D4F", "#8E493B"];
 
 export default function OrderStatusChart({ counts }: { counts: Record<string, number> }) {
   const series = STATUSES.map((s) => counts[s] ?? 0);

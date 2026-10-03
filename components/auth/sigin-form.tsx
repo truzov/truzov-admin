@@ -115,7 +115,7 @@ export function SigninForm() {
     <div>
       <div className="flex flex-col items-start mb-6">
         <div className="relative mb-6">
-          <Image src="/images/auth/sigin-illustration.png" alt="" width={120} height={120} className="w-28 h-28 object-contain" />
+          <Image src="/images/logo/truzov-logo.png" alt="Truzov" width={210} height={73} priority className="w-[210px] h-[73px] object-contain" />
         </div>
         <h1 className="text-2xl font-public-sans  font-bold text-light-primary-text mb-2">
           {mode === "admin" ? "Admin sign in" : "Seller sign in"}

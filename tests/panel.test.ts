@@ -28,7 +28,9 @@ describe("roles", () => {
     expect(isAllowed("master", "/orders/abandon-cart")).toBe(true);
     expect(isAllowed("master", "/coupon")).toBe(true);
     expect(isAllowed("master", "/settings/payment-api")).toBe(true);
-    expect(isAllowed("master", "/coupon/add")).toBe(false); // template sub-page, add/edit is inline
+    expect(isAllowed("master", "/coupon/add")).toBe(true);
+    expect(isAllowed("master", "/coupon/edit/coupon-1")).toBe(true);
+    expect(isAllowed("master", "/coupon/coupon-1")).toBe(true);
     expect(isAllowed("master", "/products/edit/p1")).toBe(false); // admins moderate, sellers edit
     expect(isAllowed("seller", "/products/edit/p1")).toBe(true);
     expect(isAllowed("seller", "/products/stocks")).toBe(true);

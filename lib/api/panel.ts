@@ -32,6 +32,23 @@ const send = <T>(method: "POST" | "PUT" | "PATCH" | "DELETE", path: string, body
 export const apiGet = get;
 export const apiSend = send;
 
+export interface SellerApplicationSubmission {
+  id: string;
+  brand: string;
+  contact: string;
+  email: string;
+  phone: string;
+  category: string;
+  website?: string;
+  gstin?: string;
+  about?: string;
+  status: string;
+  createdAt: string;
+}
+
+export const listSellerApplicationSubmissions = (q: Query) =>
+  get<PagedData<SellerApplicationSubmission>>("/admin/support/seller-applications", q);
+
 // ------------------------------------------------------------------- auth
 export const login = (identifier: string, password: string) =>
   apiRequest<TokenResponse>("/auth/login", { method: "POST", body: { identifier, password } });

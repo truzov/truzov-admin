@@ -13,7 +13,7 @@ export function NewPasswordForm() {
         <Link href="/" className="mb-8">
           <Image
             src="/images/auth/logo.png"
-            alt="Sellzy"
+            alt="Truzov"
             width={150}
             height={50}
             className="h-10 w-auto"
