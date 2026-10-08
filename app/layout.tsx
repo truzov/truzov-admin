@@ -24,10 +24,10 @@ const urbanist = Urbanist({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Truzov Seller & Admin",
-    default: "Truzov Seller & Admin",
+    template: "%s | truzov Seller & Admin",
+    default: "truzov Seller & Admin",
   },
-  description: "Truzov marketplace admin and seller panel.",
+  description: "truzov marketplace admin and seller panel.",
 };
 
 export default function RootLayout({

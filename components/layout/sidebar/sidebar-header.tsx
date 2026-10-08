@@ -25,7 +25,7 @@ export function SidebarHeader({
       >
         <Image
           src="/images/logo/truzov-logo.png"
-          alt="Truzov home"
+          alt="truzov home"
           width={156}
           height={54}
           className="w-[156px] h-[48px] object-contain"
@@ -41,7 +41,7 @@ export function SidebarHeader({
       >
         <Image
           src="/images/logo/truzov-logo.png"
-          alt="Truzov home"
+          alt="truzov home"
           width={48}
           height={32}
           className="w-12 h-8 object-contain"

@@ -3,12 +3,19 @@
 export interface SettingField {
   key: string;
   label: string;
-  type: "text" | "textarea" | "url" | "image" | "bool" | "money" | "select" | "datetime" | "secret";
+  type: "text" | "textarea" | "url" | "image" | "bool" | "money" | "integer" | "select" | "datetime" | "secret";
+  min?: number;
+  max?: number;
   options?: string[];
   hint?: string;
 }
 
 export const SETTINGS = {
+  productFlags: [
+    { key: "newDays", label: "New arrival window (days)", type: "integer", min: 1, max: 365, hint: "Days since product creation. Default: 30." },
+    { key: "salesDays", label: "Bestseller sales window (days)", type: "integer", min: 1, max: 365, hint: "Counts paid units, excluding cancelled/returned orders. Default: 30." },
+    { key: "minimumUnits", label: "Minimum units for Bestseller", type: "integer", min: 1, max: 100000, hint: "Paid units required in the sales window; cancelled/returned orders are excluded. Default: 10." },
+  ],
   shop: [
     { key: "shopName", label: "Shop name", type: "text" },
     { key: "slug", label: "Slug", type: "text" },
@@ -58,15 +65,5 @@ export const SETTINGS = {
     { key: "webhookEndpoint", label: "Webhook URL", type: "url" },
     { key: "keySecret", label: "Key secret", type: "secret" },
     { key: "webhookSecret", label: "Webhook secret", type: "secret" },
-  ],
-  firebase: [
-    { key: "apiKey", label: "API key (web)", type: "text" },
-    { key: "authDomain", label: "Auth domain", type: "text" },
-    { key: "projectId", label: "Project ID", type: "text" },
-    { key: "storageBucket", label: "Storage bucket", type: "text" },
-    { key: "messagingSenderId", label: "Messaging sender ID", type: "text" },
-    { key: "appId", label: "App ID", type: "text" },
-    { key: "measurementId", label: "Measurement ID", type: "text" },
-    { key: "serviceAccountJson", label: "Service account JSON (server only)", type: "secret" },
   ],
 } satisfies Record<string, SettingField[]>;

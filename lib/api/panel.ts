@@ -1,6 +1,8 @@
 import { apiRequest } from "@/lib/api/client";
 import type {
   AdminStats,
+  AdminProductInput,
+  AdminProductDetail,
   CategoryDto,
   CustomerDetail,
   CustomerRow,
@@ -50,15 +52,17 @@ export const listSellerApplicationSubmissions = (q: Query) =>
   get<PagedData<SellerApplicationSubmission>>("/admin/support/seller-applications", q);
 
 // ------------------------------------------------------------------- auth
-export const login = (identifier: string, password: string) =>
-  apiRequest<TokenResponse>("/auth/login", { method: "POST", body: { identifier, password } });
+export const login = (identifier: string, password: string, mode: "seller" | "admin") =>
+  apiRequest<TokenResponse>(`/auth/${mode}/login`, { method: "POST", body: { identifier, password } });
 export const signup = (body: { fullName: string; email?: string; phone: string; password: string }) =>
   apiRequest<SignupResponse>("/auth/signup", { method: "POST", body: { ...body, otpChannel: "phone" } });
 export const verifyOtp = (otpSessionId: string, code: string) =>
   apiRequest<TokenResponse>("/auth/otp/verify", { method: "POST", body: { otpSessionId, code } });
+export const verifyPanelOtp = (otpSessionId: string, code: string, mode: "seller" | "admin") =>
+  apiRequest<TokenResponse>(`/auth/${mode}/otp/verify`, { method: "POST", body: { otpSessionId, code } });
 /** Proves an unverified email/phone during sign-in. Same response for unknown identifiers. */
-export const sendVerifyOtp = (identifier: string) =>
-  apiRequest<{ otpSessionId: string; channel: string; expiresInSeconds: number }>("/auth/otp/send", {
+export const sendVerifyOtp = (identifier: string, mode: "seller" | "admin") =>
+  apiRequest<{ otpSessionId: string; channel: string; expiresInSeconds: number }>(`/auth/${mode}/otp/send`, {
     method: "POST",
     body: { identifier, purpose: "verify" },
   });
@@ -115,6 +119,13 @@ export const updateVendorProduct = (id: string, body: VendorProductInput) =>
   send<ProductDetailDto>("PUT", `/vendor/products/${encodeURIComponent(id)}`, body);
 export const deleteVendorProduct = (id: string) =>
   send<void>("DELETE", `/vendor/products/${encodeURIComponent(id)}`);
+
+export const getAdminProduct = (id: string) =>
+  get<AdminProductDetail>(`/admin/products/${encodeURIComponent(id)}`);
+export const createAdminProduct = (body: AdminProductInput) =>
+  send<AdminProductDetail>("POST", "/admin/products", body);
+export const updateAdminProduct = (id: string, body: AdminProductInput) =>
+  send<AdminProductDetail>("PUT", `/admin/products/${encodeURIComponent(id)}`, body);
 
 // ----------------------------------------------------------------- orders
 export const listOrders = (admin: boolean, q: Query) =>

@@ -18,7 +18,7 @@ type Mode = "seller" | "admin";
 /**
  * One sign-in for both panels. The switch only picks where the user expects to
  * land; the server-side role decides what they actually get. Choosing the wrong
- * tab signs nobody in: the fresh session is dropped and the user is told why.
+ * tab signs nobody in and uses the same message as invalid credentials.
  */
 export function SigninForm() {
   const router = useRouter();
@@ -33,11 +33,7 @@ export function SigninForm() {
     const mismatch = mode === "admin" ? panel !== "master" : panel === "master";
     if (mismatch) {
       clearSession("logout", { silent: true });
-      toast.error(
-        mode === "admin"
-          ? "This account is not an administrator. Use Seller login."
-          : "This is an administrator account. Use Admin login.",
-      );
+      toast.error("Invalid identifier or password");
       return;
     }
     startSession(tokens);
@@ -50,12 +46,12 @@ export function SigninForm() {
     const identifier = String(form.get("identifier")).trim();
     setBusy(true);
     try {
-      finish(await api.login(identifier, String(form.get("password"))));
+      finish(await api.login(identifier, String(form.get("password")), mode));
     } catch (err) {
       // Right password, unproven email/phone: prove it by OTP, then sign in.
       if (isApiError(err) && (err.code === ERROR_CODES.ACCOUNT_NOT_VERIFIED || err.code === ERROR_CODES.PHONE_NOT_VERIFIED)) {
         try {
-          const sent = await api.sendVerifyOtp(identifier);
+          const sent = await api.sendVerifyOtp(identifier, mode);
           setVerify({ identifier, otpSessionId: sent.otpSessionId });
           toast.info(`We sent a verification code to ${identifier}.`);
         } catch (sendErr) {
@@ -74,7 +70,7 @@ export function SigninForm() {
     const code = String(new FormData(e.currentTarget).get("code")).trim();
     setBusy(true);
     try {
-      finish(await api.verifyOtp(verify!.otpSessionId, code));
+      finish(await api.verifyPanelOtp(verify!.otpSessionId, code, mode));
     } catch (err) {
       toast.error(errorMessage(err));
     } finally {
@@ -115,14 +111,14 @@ export function SigninForm() {
     <div>
       <div className="flex flex-col items-start mb-6">
         <div className="relative mb-6">
-          <Image src="/images/logo/truzov-logo.png" alt="Truzov" width={210} height={73} priority className="w-[210px] h-[73px] object-contain" />
+          <Image src="/images/logo/truzov-logo.png" alt="truzov" width={210} height={73} priority className="w-[210px] h-[73px] object-contain" />
         </div>
         <h1 className="text-2xl font-public-sans  font-bold text-light-primary-text mb-2">
           {mode === "admin" ? "Admin sign in" : "Seller sign in"}
         </h1>
         <p className="text-gray-600 font-public-sans text-sm">
           {mode === "admin"
-            ? "For Truzov staff. Use your administrator email and password."
+            ? "For truzov staff. Use your administrator email and password."
             : "Sign in with the email or phone you registered as a seller."}
         </p>
       </div>
@@ -134,6 +130,7 @@ export function SigninForm() {
             type="button"
             role="tab"
             aria-selected={mode === m}
+            disabled={busy}
             onClick={() => setMode(m)}
             className={`h-10 rounded-full text-sm font-bold transition-colors ${
               mode === m ? "bg-white text-primary shadow-sm" : "text-light-secondary-text"
@@ -161,7 +158,7 @@ export function SigninForm() {
 
       {mode === "seller" && (
         <p className="mt-10 text-sm text-light-secondary-text">
-          New to Truzov?{" "}
+          New to truzov?{" "}
           <Link href="/signup" className=" ml-2 font-bold text-primary hover:text-primary-dark">
             Create a seller account
           </Link>

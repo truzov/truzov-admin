@@ -6,10 +6,6 @@ export const metadata: Metadata = {
   description: "Edit existing product details.",
 };
 
-export default function EditProductPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EditProductPage() {
   return <EditProductForm />;
 }

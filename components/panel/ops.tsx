@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ProductFlagSelect } from "@/components/panel/product-flag-select";
 import { Card, DataTable, Field, Pager, StatCard, StatusBadge, inputClass, useApi } from "@/components/panel/kit";
 import { apiGet, apiSend } from "@/lib/api/panel";
 import { errorMessage } from "@/lib/api/errors";
 import { useAuth } from "@/lib/auth";
 import { formatDate, formatINR } from "@/lib/money";
-import type { PagedData } from "@/types/api";
+import type { PagedData, ProductFlagMode } from "@/types/api";
 
 /** Users, admins, catalogue moderation, inventory, reviews, reports, transactions, carts, refunds. */
 
@@ -128,19 +130,25 @@ function NewAdminForm({ onCreated }: { onCreated: () => void }) {
 
 // ------------------------------------------------------ admin products
 
-interface AdminProduct { id: string; slug: string; name: string; brand: string; categorySlug: string; sellerName: string; price: number; mrp: number; stockCount: number; isPublished: boolean; isFeatured: boolean; isBestseller: boolean; isNewArrival: boolean; coverImage?: string; updatedAt: string }
+interface AdminProduct { id: string; slug: string; name: string; brand: string; categorySlug: string; sellerName: string; price: number; mrp: number; stockCount: number; isPublished: boolean; isFeatured: boolean; isBestseller: boolean; isNewArrival: boolean; bestsellerMode: ProductFlagMode; newArrivalMode: ProductFlagMode; coverImage?: string; updatedAt: string }
 
 export function AdminProductsScreen({ status, lowStock }: { status?: "draft"; lowStock?: boolean }) {
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
   const list = useApi(() => apiGet<PagedData<AdminProduct>>("/admin/products", { status, lowStock, search: q || undefined, page, limit: LIMIT }), [status, lowStock, q, page]);
-  const flag = (p: AdminProduct, key: "isPublished" | "isFeatured" | "isBestseller" | "isNewArrival") =>
+  const [savingFlag, setSavingFlag] = useState<string | null>(null);
+  const flag = (p: AdminProduct, key: "isPublished" | "isFeatured") =>
     act(() => apiSend("PATCH", `/admin/products/${encodeURIComponent(p.id)}`, { [key]: !p[key] }), "Product updated.", list.reload);
+  const mode = async (p: AdminProduct, key: "bestsellerMode" | "newArrivalMode", value: ProductFlagMode) => {
+    setSavingFlag(p.id);
+    await act(() => apiSend("PATCH", `/admin/products/${encodeURIComponent(p.id)}`, { [key]: value }), "Product updated.", list.reload);
+    setSavingFlag(null);
+  };
 
   return (
     <Card
       title={lowStock ? "Low stock (≤ 5)" : status === "draft" ? "Unpublished products" : "All products"}
-      actions={<SearchBar placeholder="Product or brand" onSearch={(v) => { setPage(1); setQ(v); }} />}
+      actions={<div className="flex flex-wrap gap-2"><SearchBar placeholder="Product or brand" onSearch={(v) => { setPage(1); setQ(v); }} /><Button href="/products/add">Add product</Button></div>}
     >
       <DataTable<AdminProduct>
         rows={list.data?.items} loading={list.loading} error={list.error} onRetry={list.reload} empty="No products."
@@ -158,12 +166,20 @@ export function AdminProductsScreen({ status, lowStock }: { status?: "draft"; lo
           { header: "Seller", cell: (p) => p.sellerName },
           { header: "Price", cell: (p) => formatINR(p.price) },
           { header: "Stock", cell: (p) => <StockCell product={p} onDone={list.reload} admin /> },
-          ...(["isPublished", "isFeatured", "isBestseller", "isNewArrival"] as const).map((k) => ({
-            header: { isPublished: "Live", isFeatured: "Featured", isBestseller: "Bestseller", isNewArrival: "New" }[k],
+          ...(["isPublished", "isFeatured"] as const).map((k) => ({
+            header: { isPublished: "Live", isFeatured: "Featured (manual)" }[k],
             cell: (p: AdminProduct) => (
               <input type="checkbox" aria-label={`${k} ${p.name}`} checked={p[k]} onChange={() => flag(p, k)} />
             ),
           })),
+          ...(["bestsellerMode", "newArrivalMode"] as const).map((k) => ({
+            header: k === "bestsellerMode" ? "Bestseller" : "New",
+            cell: (p: AdminProduct) => <div className="space-y-1">
+              <ProductFlagSelect label={`${k === "bestsellerMode" ? "Bestseller" : "New"} mode for ${p.name}`} value={p[k]} disabled={savingFlag !== null} onChange={(value) => mode(p, k, value)} />
+              <div className="text-xs text-light-secondary-text">{(k === "bestsellerMode" ? p.isBestseller : p.isNewArrival) ? "On" : "Off"} · {p[k] === "auto" ? "Automatic" : "Manual"}</div>
+            </div>,
+          })),
+          { header: "Actions", cell: (p) => <Link className="text-primary font-semibold" href={`/products/edit/${encodeURIComponent(p.id)}`}>Edit</Link> },
         ]}
       />
       {list.data && <Pager page={page} total={list.data.total} limit={LIMIT} onPage={setPage} />}

@@ -27,7 +27,7 @@ const ORDERS = new RegExp(`^/orders(/${id("abandon-cart", "return-and-refund", "
 const ROUTES: Record<PanelRole, RegExp[]> = {
   master: [
     ...exact(
-      "/", "/products", "/products/drafts", "/products/stocks", "/products/review", "/inventory",
+      "/", "/products", "/products/add", "/products/drafts", "/products/stocks", "/products/review", "/inventory",
       "/categories", "/categories/add", "/categories/edit", "/categories/attributes", "/categories/tags", "/categories/brands",
       "/orders/return-and-refund", "/orders/abandon-cart", "/orders/transactions", "/abandon-cart", "/transactions",
       "/users", "/admin-users", "/sellers", "/sellers/pending", "/customers",
@@ -36,10 +36,12 @@ const ROUTES: Record<PanelRole, RegExp[]> = {
       "/coupon", "/coupon/add", "/flash-sales", "/featured-deal", "/clearance-sale",
       "/home-page-control", "/promo-popup", "/faq", "/privacy-and-policy", "/terms-and-conditions",
       "/inbox", "/support",
-      "/settings/general", "/settings/shop", "/settings/seo", "/settings/payment-api", "/settings/maintenance",
-      "/payment-method", "/firebase", "/marketing-tools",
+      "/settings/general", "/settings/shop", "/settings/seo", "/settings/payment-api", "/settings/maintenance", "/settings/product-flags",
+      "/payment-method", "/marketing-tools",
     ),
     ORDERS,
+    /^\/products\/edit\/[^/]+$/,
+    /^\/support\/[^/]+$/,
     new RegExp(`^/sellers/${id("add", "edit", "seller-grid", "pending")}$`),
     new RegExp(`^/customers/${id("add", "edit")}$`),
     new RegExp(`^/coupon/${id("add", "edit")}$`),
@@ -52,6 +54,7 @@ const ROUTES: Record<PanelRole, RegExp[]> = {
       "/inbox", "/support", "/settings/general",
     ),
     /^\/products\/edit\/[^/]+$/,
+    /^\/support\/[^/]+$/,
     ORDERS,
   ],
 };

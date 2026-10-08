@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, DataTable, ErrorState, Field, Pager, StatusBadge, inputClass, useApi } from "@/components/panel/kit";
 import { ImageUpload } from "@/components/panel/image-upload";
+import { ProductFlagSelect } from "@/components/panel/product-flag-select";
 import * as api from "@/lib/api/panel";
 import { errorMessage, fieldError } from "@/lib/api/errors";
 import { formatDate, formatINR } from "@/lib/money";
-import type { VendorProductInput, VendorProductRow } from "@/types/api";
+import { useAuth } from "@/lib/auth";
+import { productFormInput } from "@/lib/forms";
+import type { AdminProductDetail, ProductDetailDto, ProductFlagMode, SellerRow, VendorProductInput, VendorProductRow } from "@/types/api";
 
 const LIMIT = 20;
 
@@ -93,8 +96,12 @@ const EMPTY: VendorProductInput = {
 };
 
 export function ProductForm({ id }: { id?: string }) {
-  const existing = useApi(() => (id ? api.getVendorProduct(id) : Promise.resolve(null)), [id]);
+  const admin = useAuth().user?.role === "admin";
+  const [sellerSearch, setSellerSearch] = useState("");
+  const existing = useApi<AdminProductDetail | { product: ProductDetailDto; isPublished: boolean } | null>(
+    () => (id ? admin ? api.getAdminProduct(id) : api.getVendorProduct(id) : Promise.resolve(null)), [id, admin]);
   const categories = useApi(() => api.publicCategories(), []);
+  const sellers = useApi(() => admin && !id ? api.listSellers({ status: "approved", search: sellerSearch || undefined, limit: 100 }) : Promise.resolve(null), [admin, id, sellerSearch]);
 
   const err = existing.error || categories.error;
   if (err) return <ErrorState error={err} onRetry={() => { existing.reload(); categories.reload(); }} />;
@@ -102,22 +109,28 @@ export function ProductForm({ id }: { id?: string }) {
 
   const p = existing.data?.product;
   const initial: VendorProductInput = p
-    ? {
-        name: p.name, categorySlug: p.categorySlug, brand: p.brand, price: p.price, mrp: p.mrp,
-        stockCount: p.stockCount, weight: p.weight ?? "", description: p.description ?? "", tags: p.tags,
-        isPublished: existing.data!.isPublished,
-        imageUrls: [...p.images].sort((a, b) => a.sortOrder - b.sortOrder).map((i) => i.url),
-      }
+    ? productFormInput(p, existing.data!.isPublished)
     : EMPTY;
-  return <ProductFormInner key={id ?? "new"} id={id} initial={initial} categories={categories.data ?? []} />;
+  const adminDetail = admin ? existing.data as AdminProductDetail | null : null;
+  return <ProductFormInner key={`${admin}:${id ?? "new"}`} id={id} initial={initial} categories={categories.data ?? []}
+    admin={admin} adminDetail={adminDetail} sellers={sellers.data?.items.filter((s) => s.active) ?? []}
+    sellerLoading={sellers.loading} sellerError={sellers.error} onSellerSearch={setSellerSearch} />;
 }
 
-function ProductFormInner({ id, initial, categories }: { id?: string; initial: VendorProductInput; categories: { slug: string; name: string }[] }) {
+function ProductFormInner({ id, initial, categories, admin, adminDetail, sellers, sellerLoading, sellerError, onSellerSearch }: {
+  id?: string; initial: VendorProductInput; categories: { slug: string; name: string }[];
+  admin: boolean; adminDetail: AdminProductDetail | null; sellers: SellerRow[]; sellerLoading: boolean;
+  sellerError: unknown; onSellerSearch: (search: string) => void;
+}) {
   const router = useRouter();
   const [f, setF] = useState(initial);
   const [tags, setTags] = useState(initial.tags?.join(", ") ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [vendorId, setVendorId] = useState(adminDetail?.vendorId ?? "");
+  const [featured, setFeatured] = useState(adminDetail?.isFeatured ?? false);
+  const [bestsellerMode, setBestsellerMode] = useState<ProductFlagMode>(adminDetail?.bestsellerMode ?? "auto");
+  const [newArrivalMode, setNewArrivalMode] = useState<ProductFlagMode>(adminDetail?.newArrivalMode ?? "auto");
   const set = <K extends keyof VendorProductInput>(k: K, v: VendorProductInput[K]) => setF((x) => ({ ...x, [k]: v }));
   const hint = (field: string) => fieldError(error, field);
 
@@ -138,7 +151,11 @@ function ProductFormInner({ id, initial, categories }: { id?: string; initial: V
     setBusy(true);
     setError(null);
     try {
-      if (id) await api.updateVendorProduct(id, body);
+      if (admin) {
+        const adminBody = { vendorId, product: body, isFeatured: featured, bestsellerMode, newArrivalMode };
+        if (id) await api.updateAdminProduct(id, adminBody);
+        else await api.createAdminProduct(adminBody);
+      } else if (id) await api.updateVendorProduct(id, body);
       else await api.createVendorProduct(body);
       toast.success(body.isPublished ? "Saved and live on the store." : "Saved as draft.");
       router.push(body.isPublished ? "/products" : "/products/drafts");
@@ -155,6 +172,17 @@ function ProductFormInner({ id, initial, categories }: { id?: string; initial: V
       <PageHeader title={id ? "Edit product" : "Add product"} backHref="/products" />
       <Card>
         <form onSubmit={submit} className="p-5 grid gap-4 md:grid-cols-2">
+          {admin && !id && <div className="md:col-span-2 space-y-3">
+            <Field label="Find seller" hint="Search approved sellers by name or email if they are not listed.">
+              <input aria-label="Find seller" className={inputClass} onChange={(e) => onSellerSearch(e.target.value.trim())} />
+            </Field>
+            <Field label="Seller" hint={sellerError ? errorMessage(sellerError) : "Only approved active sellers can own a new product."}>
+              <select aria-label="Seller" required className={inputClass} value={vendorId} onChange={(e) => setVendorId(e.target.value)} disabled={sellerLoading}>
+                <option value="">{sellerLoading ? "Loading sellers…" : "Choose seller…"}</option>
+                {sellers.map((s) => <option key={s.id} value={s.id}>{s.sellerName} · {s.ownerName}</option>)}
+              </select>
+            </Field>
+          </div>}
           <Field label="Product name" hint={hint("name")}>
             <input className={inputClass} required maxLength={320} value={f.name} onChange={(e) => set("name", e.target.value)} />
           </Field>
@@ -196,8 +224,13 @@ function ProductFormInner({ id, initial, categories }: { id?: string; initial: V
             <input type="checkbox" checked={f.isPublished} onChange={(e) => set("isPublished", e.target.checked)} />
             Publish to the store (unchecked = draft, not visible to customers)
           </label>
+          {admin && <div className="md:col-span-2 flex flex-wrap gap-4 items-end">
+            <Field label="Bestseller"><ProductFlagSelect label="Bestseller mode" value={bestsellerMode} onChange={setBestsellerMode} /></Field>
+            <Field label="New"><ProductFlagSelect label="New mode" value={newArrivalMode} onChange={setNewArrivalMode} /></Field>
+            <label className="flex items-center gap-2 text-sm pb-2"><input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />Featured (manual)</label>
+          </div>}
           <div className="md:col-span-2 flex justify-end">
-            <Button type="submit" disabled={busy}>{busy ? "Saving…" : "Save"}</Button>
+            <Button type="submit" disabled={busy || (admin && !id && (!vendorId || sellerLoading || !!sellerError))}>{busy ? "Saving…" : "Save"}</Button>
           </div>
         </form>
       </Card>

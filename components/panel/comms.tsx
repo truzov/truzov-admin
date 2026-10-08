@@ -32,7 +32,7 @@ function Messages({ messages, meIsAdmin }: { messages: Message[]; meIsAdmin: boo
             <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-primary text-white" : "bg-gray-100 text-light-primary-text"}`}>
               <div className="whitespace-pre-wrap break-words">{m.body}</div>
               <div className={`mt-1 text-[11px] ${mine ? "text-white/80" : "text-light-secondary-text"}`}>
-                {m.fromAdmin ? `Truzov team${m.senderName ? ` · ${m.senderName}` : ""}` : m.senderName} · {new Date(m.createdAt).toLocaleString("en-IN")}
+                {m.fromAdmin ? `truzov team${m.senderName ? ` · ${m.senderName}` : ""}` : m.senderName} · {new Date(m.createdAt).toLocaleString("en-IN")}
               </div>
             </div>
           </li>
@@ -181,6 +181,12 @@ function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
   );
 }
 
+export function TicketScreen({ id }: { id: string }) {
+  const router = useRouter();
+  const admin = useAuth().user?.role === "admin";
+  return <TicketView id={id} admin={admin} onChanged={() => {}} onClose={() => router.push("/support")} />;
+}
+
 function TicketView({ id, admin, onChanged, onClose }: { id: string; admin: boolean; onChanged: () => void; onClose: () => void }) {
   const base = admin ? `/admin/support/tickets/${encodeURIComponent(id)}` : `/support/tickets/${encodeURIComponent(id)}`;
   const d = useApi(() => apiGet<TicketDetail>(base), [base]);
@@ -238,7 +244,7 @@ export function InboxScreen() {
 function UserInbox() {
   const t = useApi(() => apiGet<Thread>("/inbox"), []);
   return (
-    <Card title="Messages with the Truzov team">
+    <Card title="Messages with the truzov team">
       <div className="px-5 pb-5">
         {t.error ? <ErrorState error={t.error} onRetry={t.reload} /> : <Messages messages={t.data?.messages ?? []} meIsAdmin={false} />}
         <Composer onSend={async (body) => { await apiSend("POST", "/inbox", { body }); t.reload(); }} />

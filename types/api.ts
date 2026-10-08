@@ -1,5 +1,5 @@
 /**
- * Wire types for the Truzov backend, limited to what the admin panel uses.
+ * Wire types for the truzov backend, limited to what the admin panel uses.
  * Money fields are RUPEES (numbers), timestamps ISO-8601 strings.
  */
 
@@ -150,6 +150,9 @@ export interface ProductDetailDto {
   mrp: number;
   stockCount: number;
   tags: string[];
+  benefits?: string[];
+  ingredients?: string[];
+  certifications?: string[];
   images: { id: string; url: string; sortOrder: number }[];
 }
 
@@ -163,8 +166,26 @@ export interface VendorProductInput {
   weight?: string;
   description?: string;
   tags?: string[];
+  benefits?: string[];
+  ingredients?: string[];
+  certifications?: string[];
   isPublished: boolean;
   imageUrls: string[];
+}
+
+export type ProductFlagMode = "auto" | "force_on" | "force_off";
+
+export interface AdminProductInput {
+  vendorId: string;
+  product: VendorProductInput;
+  isFeatured: boolean;
+  bestsellerMode: ProductFlagMode;
+  newArrivalMode: ProductFlagMode;
+}
+
+export interface AdminProductDetail extends Omit<AdminProductInput, "product"> {
+  product: ProductDetailDto;
+  isPublished: boolean;
 }
 
 /* --------------------------------------------------------------- orders */
