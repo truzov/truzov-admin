@@ -74,7 +74,7 @@ export default function ProfitMarginChart() {
           speed: 500,
         },
       },
-      colors: ["#088178", "rgba(250, 184, 81, 0.90)"],
+      colors: ["#245747", "rgba(250, 184, 81, 0.90)"],
       stroke: {
         width: 4,
         curve: "straight",

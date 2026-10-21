@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, DataTable, Field, Pager, StatusBadge, inputClass, useApi } from "@/components/panel/kit";
+import { Card, DataTable, ErrorState, Field, Pager, StatusBadge, inputClass, useApi } from "@/components/panel/kit";
 import { ImageUpload } from "@/components/panel/image-upload";
 import { apiGet, apiSend } from "@/lib/api/panel";
 import { errorMessage } from "@/lib/api/errors";
 import { formatDate, formatINR } from "@/lib/money";
+import { parseSortOrder } from "@/lib/forms";
 import type { CategoryDto, PagedData } from "@/types/api";
 
 /**
@@ -78,6 +81,7 @@ function toBody(fields: FieldDef[], f: Form): Record<string, unknown> {
   for (const d of fields) {
     const v = f[d.key];
     if (d.type === "bool") out[d.key] = Boolean(v);
+    else if (d.key === "sortOrder") out[d.key] = parseSortOrder(String(v));
     else if (d.type === "products") out[d.key] = v;
     else if (d.type === "list") out[d.key] = String(v).split(",").map((s) => s.trim()).filter(Boolean);
     else if (typeof v === "string" && v.trim() === "") out[d.key] = null;
@@ -172,6 +176,7 @@ export function ResourceScreen({ config }: { config: ResourceConfig }) {
               header: "Actions",
               cell: (r: Row) => (
                 <div className="flex gap-3">
+                  {config.name === "coupons" && <Link href={`/coupon/${encodeURIComponent(r.id)}`} className="text-primary font-semibold">View</Link>}
                   <button type="button" className="text-primary font-semibold" onClick={() => setEditing(r)}>Edit</button>
                   <button type="button" className="text-error font-semibold" onClick={() => remove(r)}>Delete</button>
                 </div>
@@ -242,7 +247,7 @@ function ResourceForm({ config, row, onClose, onSaved }: { config: ResourceConfi
           </select>
         );
       case "int":
-        return <input {...common} type="number" step={1} value={String(v)} onChange={(e) => set(d.key, e.target.value)} />;
+        return <input {...common} type="number" step={1} min={d.key === "sortOrder" ? 0 : undefined} max={d.key === "sortOrder" ? 10000 : undefined} value={String(v)} onChange={(e) => set(d.key, e.target.value)} />;
       case "money":
         return <input {...common} type="number" step="0.01" value={String(v)} onChange={(e) => set(d.key, e.target.value)} />;
       case "datetime":
@@ -287,7 +292,7 @@ function ResourceForm({ config, row, onClose, onSaved }: { config: ResourceConfi
       <form onSubmit={submit} className="px-5 pb-5 grid gap-4 md:grid-cols-2">
         {config.fields.map((d) => (
           <div key={d.key} className={d.type === "textarea" || d.type === "products" ? "md:col-span-2" : ""}>
-            <Field label={d.label + (d.required ? " *" : "")} hint={d.hint ?? (d.type === "products" ? "Ctrl/Cmd-click to select several" : undefined)}>
+            <Field label={d.label + (d.required ? " *" : "")} hint={d.hint ?? (d.key === "sortOrder" ? "Leave blank to use 0." : d.type === "products" ? "Ctrl/Cmd-click to select several" : undefined)}>
               {input(d)}
             </Field>
           </div>
@@ -299,4 +304,36 @@ function ResourceForm({ config, row, onClose, onSaved }: { config: ResourceConfi
       </form>
     </Card>
   );
+}
+
+/** Route-based forms reuse exactly the same validated CRUD flow as inline forms. */
+export function ResourceEditor({ config, id, backHref }: { config: ResourceConfig; id?: string; backHref: string }) {
+  const router = useRouter();
+  const detail = useApi(() => id ? apiGet<Row>(`/admin/resources/${config.name}/${encodeURIComponent(id)}`) : Promise.resolve(null), [config.name, id]);
+  if (id && detail.error) return <Card><ErrorState error={detail.error} onRetry={detail.reload} /></Card>;
+  if (id && !detail.data) return <Card><p className="p-5">Loading…</p></Card>;
+  return <ResourceForm key={id ?? "new"} config={config} row={detail.data ?? undefined} onClose={() => router.push(backHref)} onSaved={() => router.push(backHref)} />;
+}
+
+export function ResourceDetail({ config, id, backHref }: { config: ResourceConfig; id: string; backHref: string }) {
+  const detail = useApi(() => apiGet<Row>(`/admin/resources/${config.name}/${encodeURIComponent(id)}`), [config.name, id]);
+  const row = detail.data;
+  const value = (field: FieldDef) => {
+    if (!row) return null;
+    const raw = row[field.key];
+    return renderCell({
+      key: field.key,
+      header: field.label,
+      type: field.type === "money" ? "money" : field.type === "datetime" ? "date" : field.type === "bool" ? "bool" : undefined,
+    }, { ...row, [field.key]: Array.isArray(raw) ? raw.join(", ") : raw });
+  };
+  return <Card title={`${config.singular} details`} actions={<Button href={backHref} variant="outline">Back</Button>}>
+    {detail.error ? <ErrorState error={detail.error} onRetry={detail.reload} /> : !row ? <p className="p-5">Loading…</p> : <div className="p-5 space-y-4">
+      <dl className="grid gap-4 sm:grid-cols-2">{config.fields.map((field) => <div key={field.key}>
+        <dt className="text-sm text-light-secondary-text">{field.label}</dt>
+        <dd className="whitespace-pre-wrap break-words font-medium">{value(field)}</dd>
+      </div>)}</dl>
+      <Button href={`${backHref}/edit/${encodeURIComponent(id)}`}>Edit {config.singular.toLowerCase()}</Button>
+    </div>}
+  </Card>;
 }

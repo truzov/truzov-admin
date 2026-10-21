@@ -57,7 +57,7 @@ export default function SellerDetailsOverview() {
     stroke: {
       show: false, // Remove gaps between segments
     },
-    colors: ["#FFC107", "#088178", "rgba(145, 158, 171, 0.16)"], // Orange, Cyan, Light gray
+    colors: ["#FFC107", "#245747", "rgba(145, 158, 171, 0.16)"], // Orange, Cyan, Light gray
     tooltip: {
       enabled: false,
     },

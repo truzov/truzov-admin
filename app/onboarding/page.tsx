@@ -130,9 +130,9 @@ function KycFormView({ initial, onSubmitted }: { initial: SellerApplication | nu
   };
 
   const text = (k: keyof KycForm, label: string, extra?: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <Field label={label} hint={errors[k]}>
+    <Field label={label} hint={errors[k]} error={Boolean(errors[k])}>
       <input
-        className={inputClass + (errors[k] ? " border-error" : "")}
+        className={inputClass + (errors[k] ? " !border-error !text-error focus:!border-error focus:!ring-2 focus:!ring-error/25" : "")}
         aria-invalid={!!errors[k]}
         value={f[k]}
         onChange={(e) => set(k, e.target.value)}
@@ -198,8 +198,8 @@ function DocUpload({ label, value, error, onChange }: { label: string; value: st
     }
   };
   return (
-    <Field label={label} hint={error}>
-      <label className={`flex h-11 items-center justify-center rounded-lg border border-dashed text-sm cursor-pointer ${error ? "border-error" : "border-gray-400"}`}>
+    <Field label={label} hint={error} error={Boolean(error)}>
+      <label className={`flex h-11 items-center justify-center rounded-lg border border-dashed text-sm cursor-pointer ${error ? "border-error text-error" : "border-gray-400"}`}>
         {busy ? "Uploading…" : value ? "✓ Uploaded — replace" : "Choose file"}
         <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={pick} disabled={busy} />
       </label>

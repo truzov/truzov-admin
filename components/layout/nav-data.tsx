@@ -21,7 +21,6 @@ import {
   CreditCardPosIcon,
   SettingsAltIcon,
   MoneyBagIcon,
-  FirepitIcon,
   MoneyIcon,
   MoneyExchangeIcon,
   AutConversionIcon,
@@ -288,6 +287,11 @@ export const navItems: NavItem[] = [
         icon: <SearchListIcon className="size-5.5" />,
       },
       {
+        label: "Product flag rules",
+        href: "/settings/product-flags",
+        icon: <SettingsIcon className="size-5.5" />,
+      },
+      {
         label: "Payment API",
         href: "/settings/payment-api",
         icon: <CreditCardPosIcon className="size-5.5" />,
@@ -307,11 +311,6 @@ export const navItems: NavItem[] = [
         label: "Payment method",
         href: "/payment-method",
         icon: <MoneyCheckIcon className="size-5.5" />,
-      },
-      {
-        label: "Firebase",
-        href: "/firebase",
-        icon: <FirepitIcon className="size-5.5" />,
       },
       {
         label: "Marketing Tools",

@@ -9,7 +9,7 @@ import { apiGet, apiSend } from "@/lib/api/panel";
 import { errorMessage } from "@/lib/api/errors";
 
 /**
- * One settings document (shop, SEO, maintenance, a payment gateway, Firebase).
+ * One settings document (shop, SEO, maintenance, a payment gateway).
  * Secret fields are write-only: the server only says whether one is saved.
  * Leave a secret blank to keep it; tick "Remove" to clear it.
  */
@@ -59,7 +59,7 @@ function Inner({ settingKey, title, description, fields, initial, onSaved }: {
       }
       if (d.type === "bool") body[d.key] = Boolean(v);
       else if (String(v).trim() === "") body[d.key] = null;
-      else if (d.type === "money") body[d.key] = Number(v);
+      else if (d.type === "money" || d.type === "integer") body[d.key] = Number(v);
       else if (d.type === "datetime") body[d.key] = new Date(String(v)).toISOString();
       else body[d.key] = String(v).trim();
     }
@@ -122,8 +122,11 @@ function Inner({ settingKey, title, description, fields, initial, onSaved }: {
                 ) : (
                   <input
                     className={inputClass}
-                    type={d.type === "money" ? "number" : d.type === "datetime" ? "datetime-local" : d.type === "url" ? "url" : "text"}
-                    step={d.type === "money" ? "0.01" : undefined}
+                    type={d.type === "money" || d.type === "integer" ? "number" : d.type === "datetime" ? "datetime-local" : d.type === "url" ? "url" : "text"}
+                    step={d.type === "money" ? "0.01" : d.type === "integer" ? "1" : undefined}
+                    min={d.min}
+                    max={d.max}
+                    required={d.type === "integer"}
                     value={String(form[d.key])}
                     onChange={(e) => set(d.key, e.target.value)}
                   />

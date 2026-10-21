@@ -23,7 +23,7 @@ export default function InventoryBasicInfo() {
         enabled: true,
       },
     },
-    colors: ["#CB0233", "#088178", "rgba(145, 158, 171, 0.16)"], // Red for used/sold, Green for remaining? Or matches image roughly
+    colors: ["#CB0233", "#245747", "rgba(145, 158, 171, 0.16)"], // Red for used/sold, Green for remaining? Or matches image roughly
     plotOptions: {
       pie: {
         donut: {

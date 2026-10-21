@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
-import TicketDetails from "@/components/support/ticket-details";
+import { useParams } from "next/navigation";
+import { TicketScreen } from "@/components/panel/comms";
 
 export default function TicketDetailsPage() {
-  return <TicketDetails />;
+  return <TicketScreen id={String(useParams().id)} />;
 }

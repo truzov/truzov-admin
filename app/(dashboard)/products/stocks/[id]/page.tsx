@@ -1,9 +1,10 @@
 import StockProductDetail from "@/components/products/stock-products/stock-product-detail";
 
-export default function StockDetailPage({
+export default async function StockDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  return <StockProductDetail id={params.id} />;
+  const { id } = await params;
+  return <StockProductDetail id={id} />;
 }

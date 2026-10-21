@@ -148,7 +148,7 @@ export default function Sidebar({
                   className={`text-xs font-medium tracking-wider mb-3 uppercase whitespace-nowrap transition-all duration-300 ${
                     userRole === "seller"
                       ? "text-light-disabled-text"
-                      : "text-warning-light"
+                      : "text-primary-lighter"
                   } ${
                     isCollapsed
                       ? "flex justify-center px-0 overflow-hidden"

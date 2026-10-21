@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, DataTable, ErrorState, Field, Pager, StatusBadge, inputClass, useApi } from "@/components/panel/kit";
 import { SettingsForm } from "@/components/panel/settings";
 import { SETTINGS } from "@/components/panel/settings-fields";
-import { apiGet, apiSend } from "@/lib/api/panel";
+import { apiGet, apiSend, listSellerApplicationSubmissions, type SellerApplicationSubmission } from "@/lib/api/panel";
 import { errorMessage } from "@/lib/api/errors";
 import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/money";
@@ -32,7 +32,7 @@ function Messages({ messages, meIsAdmin }: { messages: Message[]; meIsAdmin: boo
             <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-primary text-white" : "bg-gray-100 text-light-primary-text"}`}>
               <div className="whitespace-pre-wrap break-words">{m.body}</div>
               <div className={`mt-1 text-[11px] ${mine ? "text-white/80" : "text-light-secondary-text"}`}>
-                {m.fromAdmin ? `Truzov team${m.senderName ? ` · ${m.senderName}` : ""}` : m.senderName} · {new Date(m.createdAt).toLocaleString("en-IN")}
+                {m.fromAdmin ? `truzov team${m.senderName ? ` · ${m.senderName}` : ""}` : m.senderName} · {new Date(m.createdAt).toLocaleString("en-IN")}
               </div>
             </div>
           </li>
@@ -82,6 +82,7 @@ export function SupportScreen() {
 
   return (
     <div className="space-y-6">
+      {admin && <SellerApplications />}
       {!admin && <NewTicket onCreated={(id) => { list.reload(); setOpen(id); }} />}
       {open && <TicketView id={open} admin={admin} onChanged={list.reload} onClose={() => setOpen(null)} />}
       <Card
@@ -109,6 +110,39 @@ export function SupportScreen() {
       </Card>
     </div>
   );
+}
+
+function SellerApplications() {
+  const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<SellerApplicationSubmission | null>(null);
+  const list = useApi(() => listSellerApplicationSubmissions({ page, limit: LIMIT }), [page]);
+  return <div className="space-y-6">
+    {selected && <Card title={`${selected.brand} · Seller enquiry`} actions={<Button variant="ghost" onClick={() => setSelected(null)}>Close details</Button>}>
+      <dl className="px-5 pb-5 grid gap-4 sm:grid-cols-2">
+        {[
+          ["Brand / store", selected.brand], ["Contact name", selected.contact], ["Email", selected.email],
+          ["Phone", selected.phone], ["Category", selected.category], ["Website", selected.website],
+          ["GSTIN", selected.gstin], ["Submitted", formatDate(selected.createdAt)], ["About the business", selected.about],
+        ].map(([label, value]) => <div key={label} className={label === "About the business" ? "sm:col-span-2" : ""}>
+          <dt className="text-sm text-light-secondary-text">{label}</dt>
+          <dd className="whitespace-pre-wrap break-words font-medium">{value || "—"}</dd>
+        </div>)}
+      </dl>
+    </Card>}
+    <Card title="Seller enquiries from the website" actions={<Button variant="outline" onClick={list.reload}>Refresh</Button>}>
+      <DataTable<SellerApplicationSubmission> rows={list.data?.items} loading={list.loading} error={list.error} onRetry={list.reload} empty="No seller enquiries yet."
+        columns={[
+          { header: "Brand / store", cell: (s) => <button type="button" className="text-primary font-semibold" onClick={() => setSelected(s)}>{s.brand}</button> },
+          { header: "Contact", cell: (s) => s.contact },
+          { header: "Email", cell: (s) => s.email },
+          { header: "Phone", cell: (s) => s.phone },
+          { header: "Category", cell: (s) => s.category },
+          { header: "Submitted", cell: (s) => formatDate(s.createdAt) },
+          { header: "Actions", cell: (s) => <button type="button" className="text-primary font-semibold" onClick={() => setSelected(s)}>View enquiry</button> },
+        ]} />
+      {list.data && <Pager page={page} total={list.data.total} limit={LIMIT} onPage={(next) => { setPage(next); setSelected(null); }} />}
+    </Card>
+  </div>;
 }
 
 function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
@@ -145,6 +179,12 @@ function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
       </form>
     </Card>
   );
+}
+
+export function TicketScreen({ id }: { id: string }) {
+  const router = useRouter();
+  const admin = useAuth().user?.role === "admin";
+  return <TicketView id={id} admin={admin} onChanged={() => {}} onClose={() => router.push("/support")} />;
 }
 
 function TicketView({ id, admin, onChanged, onClose }: { id: string; admin: boolean; onChanged: () => void; onClose: () => void }) {
@@ -204,7 +244,7 @@ export function InboxScreen() {
 function UserInbox() {
   const t = useApi(() => apiGet<Thread>("/inbox"), []);
   return (
-    <Card title="Messages with the Truzov team">
+    <Card title="Messages with the truzov team">
       <div className="px-5 pb-5">
         {t.error ? <ErrorState error={t.error} onRetry={t.reload} /> : <Messages messages={t.data?.messages ?? []} meIsAdmin={false} />}
         <Composer onSend={async (body) => { await apiSend("POST", "/inbox", { body }); t.reload(); }} />

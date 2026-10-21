@@ -28,14 +28,24 @@ describe("roles", () => {
     expect(isAllowed("master", "/orders/abandon-cart")).toBe(true);
     expect(isAllowed("master", "/coupon")).toBe(true);
     expect(isAllowed("master", "/settings/payment-api")).toBe(true);
-    expect(isAllowed("master", "/coupon/add")).toBe(false); // template sub-page, add/edit is inline
-    expect(isAllowed("master", "/products/edit/p1")).toBe(false); // admins moderate, sellers edit
+    expect(isAllowed("master", "/coupon/add")).toBe(true);
+    expect(isAllowed("master", "/coupon/edit/coupon-1")).toBe(true);
+    expect(isAllowed("master", "/coupon/coupon-1")).toBe(true);
+    expect(isAllowed("master", "/products/edit/p1")).toBe(true);
+    expect(isAllowed("master", "/products/add")).toBe(true);
+    expect(isAllowed("master", "/firebase")).toBe(false);
+    expect(isAllowed("master", "/payment-method")).toBe(true);
+    expect(isAllowed("master", "/marketing-tools")).toBe(true);
+    expect(isAllowed("master", "/settings/product-flags")).toBe(true);
+    expect(isAllowed("master", "/support/ticket-1")).toBe(true);
     expect(isAllowed("seller", "/products/edit/p1")).toBe(true);
     expect(isAllowed("seller", "/products/stocks")).toBe(true);
     expect(isAllowed("seller", "/sellers")).toBe(false);
     expect(isAllowed("seller", "/coupon")).toBe(false);
     expect(isAllowed("seller", "/settings/payment-api")).toBe(false);
+    expect(isAllowed("seller", "/settings/product-flags")).toBe(false);
     expect(isAllowed("seller", "/support")).toBe(true);
+    expect(isAllowed("seller", "/support/ticket-1")).toBe(true);
     expect(isAllowed("seller", "/earning")).toBe(true);
   });
 });

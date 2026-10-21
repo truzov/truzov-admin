@@ -13,7 +13,7 @@ export function ResetPasswordForm() {
         <Link href="/" className="mb-8">
           <Image
             src="/images/auth/logo.png"
-            alt="Sellzy"
+            alt="truzov"
             width={150}
             height={50}
             className="h-10 w-auto"

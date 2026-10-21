@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       />
 
       <div
-        className={`flex-1 min-w-0 flex flex-col bg-[rgba(0,171,85,0.08)] transition-[margin] duration-300 ml-0 ${
+        className={`flex-1 min-w-0 flex flex-col bg-brand-cream transition-[margin] duration-300 ml-0 ${
           isDesktopCollapsed ? "xl:ml-[80px]" : "xl:ml-[280px]"
         }`}
       >

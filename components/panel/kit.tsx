@@ -179,12 +179,12 @@ export function StatCard({ label, value }: { label: string; value: React.ReactNo
 export const inputClass =
   "w-full h-11 px-3.5 rounded-lg border border-gray-500/20 text-sm focus:outline-none focus:border-primary";
 
-export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
+export function Field({ label, children, hint, error = false }: { label: string; children: React.ReactNode; hint?: string; error?: boolean }) {
   return (
     <label className="block text-sm">
       <span className="font-semibold text-light-primary-text">{label}</span>
       <div className="mt-1.5">{children}</div>
-      {hint && <span className="text-xs text-light-secondary-text">{hint}</span>}
+      {hint && <span className={error ? "text-xs text-error" : "text-xs text-light-secondary-text"}>{hint}</span>}
     </label>
   );
 }
