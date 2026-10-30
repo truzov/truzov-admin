@@ -12,13 +12,14 @@ import { errorMessage } from "@/lib/api/errors";
 import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/money";
 import type { PagedData } from "@/types/api";
+import { apiRequest } from "@/lib/api/client";
 
 /** Support tickets, inbox, and the signed-in user's own profile. */
 
 const LIMIT = 20;
 
-interface Ticket { id: string; ticketNumber: string; userName: string; userEmail?: string; userRole: string; type: string; subject: string; status: string; messageCount: number; updatedAt: string }
-interface Message { id: string; senderName?: string; fromAdmin: boolean; body: string; createdAt: string }
+interface Ticket { id: string; ticketNumber: string; userName: string; userEmail?: string; userRole: string; type: string; subject: string; status: string; messageCount: number; updatedAt: string; orderNumber?: string | null }
+interface Message { id: string; senderName?: string; fromAdmin: boolean; body: string; createdAt: string; attachmentUrl?: string | null }
 interface TicketDetail { ticket: Ticket; messages: Message[] }
 
 function Messages({ messages, meIsAdmin }: { messages: Message[]; meIsAdmin: boolean }) {
@@ -31,6 +32,7 @@ function Messages({ messages, meIsAdmin }: { messages: Message[]; meIsAdmin: boo
           <li key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-primary text-white" : "bg-gray-100 text-light-primary-text"}`}>
               <div className="whitespace-pre-wrap break-words">{m.body}</div>
+              {m.attachmentUrl && <a className="inline-flex min-h-11 items-center underline" href={m.attachmentUrl} target="_blank" rel="noopener noreferrer">View attached image</a>}
               <div className={`mt-1 text-[11px] ${mine ? "text-white/80" : "text-light-secondary-text"}`}>
                 {m.fromAdmin ? `truzov team${m.senderName ? ` · ${m.senderName}` : ""}` : m.senderName} · {new Date(m.createdAt).toLocaleString("en-IN")}
               </div>
@@ -90,7 +92,7 @@ export function SupportScreen() {
         actions={admin && (
           <select aria-label="Status" className={inputClass + " w-36"} value={status} onChange={(e) => { setPage(1); setStatus(e.target.value); }}>
             <option value="">All</option>
-            {["open", "pending", "closed"].map((s) => <option key={s} value={s}>{s}</option>)}
+            {["open", "pending", "resolved", "closed"].map((s) => <option key={s} value={s}>{s === "pending" ? "in progress" : s}</option>)}
           </select>
         )}
       >
@@ -147,14 +149,27 @@ function SellerApplications() {
 
 function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
   const [busy, setBusy] = useState(false);
+  const submitting = React.useRef(false);
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (submitting.current) return;
     const form = e.currentTarget;
     const f = new FormData(form);
+    const file = f.get("attachment");
+    const image = file instanceof File && file.size > 0 ? file : null;
+    if (image && (!['image/jpeg', 'image/png', 'image/webp'].includes(image.type) || image.size > 5 * 1024 * 1024)) { toast.error("Choose JPEG, PNG or WEBP up to 5 MB."); return; }
+    submitting.current = true;
     setBusy(true);
     try {
+      let attachmentDocId: string | undefined;
+      if (image) {
+        const multipart = new FormData(); multipart.set("file", image);
+        attachmentDocId = (await apiRequest<{ docId: string }>("/support/attachments", { method: "POST", auth: true, body: multipart })).docId;
+      }
+      const orderNumber = String(f.get("orderNumber") ?? "").trim();
       const d = await apiSend<TicketDetail>("POST", "/support/tickets", {
         type: f.get("type"), subject: String(f.get("subject")).trim(), body: String(f.get("body")).trim(),
+        ...(orderNumber ? { orderNumber } : {}), ...(attachmentDocId ? { attachmentDocId } : {}),
       });
       toast.success(`Ticket ${d.ticket.ticketNumber} opened.`);
       form.reset();
@@ -162,6 +177,7 @@ function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
     } catch (err) {
       toast.error(errorMessage(err));
     } finally {
+      submitting.current = false;
       setBusy(false);
     }
   };
@@ -174,6 +190,8 @@ function NewTicket({ onCreated }: { onCreated: (id: string) => void }) {
           </select>
         </Field>
         <div className="md:col-span-2"><Field label="Subject"><input name="subject" required maxLength={200} className={inputClass} /></Field></div>
+        <div className="md:col-span-3"><Field label="Related order number (optional)"><input name="orderNumber" maxLength={80} className={inputClass} /></Field></div>
+        <div className="md:col-span-3"><Field label="Image attachment (optional)"><input name="attachment" type="file" accept="image/jpeg,image/png,image/webp" className={inputClass} /><p className="text-sm">JPEG, PNG or WEBP up to 5 MB. Never attach passwords or card details.</p></Field></div>
         <div className="md:col-span-3"><Field label="Describe the problem"><textarea name="body" required maxLength={5000} className={inputClass + " h-24 py-2"} /></Field></div>
         <div className="md:col-span-3 flex justify-end"><Button type="submit" disabled={busy}>{busy ? "Opening…" : "Open ticket"}</Button></div>
       </form>
@@ -209,6 +227,7 @@ function TicketView({ id, admin, onChanged, onClose }: { id: string; admin: bool
       actions={
         <div className="flex gap-2 items-center">
           <StatusBadge status={t.status} />
+          {admin && t.status !== "resolved" && <Button size="xs" variant="outline" onClick={() => setStatus("resolved")}>Resolve ticket</Button>}
           {admin && t.status !== "closed" && <Button size="xs" variant="outline" onClick={() => setStatus("closed")}>Close ticket</Button>}
           {admin && t.status === "closed" && <Button size="xs" variant="outline" onClick={() => setStatus("open")}>Reopen</Button>}
           <Button size="xs" variant="ghost" onClick={onClose}>×</Button>
@@ -217,6 +236,7 @@ function TicketView({ id, admin, onChanged, onClose }: { id: string; admin: bool
     >
       <div className="px-5 pb-5">
         {admin && <p className="text-sm text-light-secondary-text mb-3">From {t.userName} · {t.userEmail}</p>}
+        {t.orderNumber && <p className="text-sm mb-3">Order: {t.orderNumber}</p>}
         <Messages messages={d.data.messages} meIsAdmin={admin} />
         <Composer
           placeholder={admin ? "Reply to the user" : "Add a message"}
