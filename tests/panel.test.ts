@@ -59,6 +59,7 @@ describe("KYC validation", () => {
 
   it("accepts a complete application with GSTIN omitted", () => {
     expect(validateKyc(complete, true)).toEqual({});
+    expect(validateKyc({ ...complete, gstin: "", stateCode: "", panDocId: "" }, true)).toEqual({ panDocId: "Upload your PAN card" });
   });
 
   it("flags bad formats and, on submit, missing documents", () => {

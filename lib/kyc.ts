@@ -27,21 +27,31 @@ const PATTERNS: Partial<Record<keyof KycForm, [RegExp, string]>> = {
 };
 
 /** Everything except GSTIN (optional for small sellers) and state code is required to submit. */
-const REQUIRED: (keyof KycForm)[] = [
-  "sellerName", "panNumber", "bankAccount", "ifscCode", "businessAddress",
-  "pickupAddress", "fssaiLicense", "panDocId", "chequeDocId", "fssaiDocId",
-];
+const REQUIRED: Partial<Record<keyof KycForm, string>> = {
+  sellerName: "Store name is required",
+  panNumber: "Enter your PAN",
+  bankAccount: "Enter your account number",
+  ifscCode: "Enter your IFSC",
+  businessAddress: "Enter your business address",
+  pickupAddress: "Enter your pickup address",
+  fssaiLicense: "Enter your FSSAI licence number",
+  panDocId: "Upload your PAN card",
+  chequeDocId: "Upload a cancelled cheque",
+  fssaiDocId: "Upload your FSSAI certificate",
+};
 
 /** Format errors for any filled field; with `forSubmit`, also every missing required field. */
 export function validateKyc(f: KycForm, forSubmit: boolean): Partial<Record<keyof KycForm, string>> {
   const errors: Partial<Record<keyof KycForm, string>> = {};
   for (const [key, rule] of Object.entries(PATTERNS) as [keyof KycForm, [RegExp, string]][]) {
-    const v = f[key].trim();
+    const v = f[key].trim().toUpperCase();
     if (v && !rule[0].test(v)) errors[key] = rule[1];
   }
   if (!f.sellerName.trim()) errors.sellerName = "Store name is required";
   if (forSubmit) {
-    for (const key of REQUIRED) if (!f[key].trim() && !errors[key]) errors[key] = "Required";
+    for (const key of Object.keys(REQUIRED) as (keyof KycForm)[]) {
+      if (!f[key].trim()) errors[key] = REQUIRED[key];
+    }
   }
   return errors;
 }

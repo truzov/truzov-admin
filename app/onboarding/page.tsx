@@ -103,7 +103,12 @@ function KycFormView({ initial, onSubmitted }: { initial: SellerApplication | nu
   });
   const [errors, setErrors] = useState<Partial<Record<keyof KycForm, string>>>({});
   const [busy, setBusy] = useState(false);
-  const set = (k: keyof KycForm, v: string) => setF((x) => ({ ...x, [k]: v }));
+  const set = (k: keyof KycForm, v: string) => {
+    setF((x) => ({ ...x, [k]: v }));
+    setErrors((current) => current[k]
+      ? { ...current, [k]: validateKyc({ ...f, [k]: v }, true)[k] }
+      : current);
+  };
 
   const save = async (submit: boolean) => {
     const errs = validateKyc(f, submit);
@@ -130,10 +135,13 @@ function KycFormView({ initial, onSubmitted }: { initial: SellerApplication | nu
   };
 
   const text = (k: keyof KycForm, label: string, extra?: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <Field label={label} hint={errors[k]} error={Boolean(errors[k])}>
+    <Field label={label} hint={errors[k]} hintId={`kyc-${k}-error`} error={Boolean(errors[k])}>
       <input
         className={inputClass + (errors[k] ? " !border-error !text-error focus:!border-error focus:!ring-2 focus:!ring-error/25" : "")}
+        aria-label={label}
         aria-invalid={!!errors[k]}
+        aria-describedby={errors[k] ? `kyc-${k}-error` : undefined}
+        onBlur={() => setErrors((current) => ({ ...current, [k]: validateKyc(f, true)[k] }))}
         value={f[k]}
         onChange={(e) => set(k, e.target.value)}
         {...extra}
@@ -178,31 +186,40 @@ function KycFormView({ initial, onSubmitted }: { initial: SellerApplication | nu
 /** KYC files are private (Cloudinary authenticated); we only keep the returned docId. */
 function DocUpload({ label, value, error, onChange }: { label: string; value: string; error?: string; onChange: (docId: string) => void }) {
   const [busy, setBusy] = useState(false);
+  const [fileError, setFileError] = useState<string>();
+  const hint = fileError ?? error;
+  const hintId = React.useId();
   const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File must be 5 MB or smaller.");
+      setFileError("File must be 5 MB or smaller.");
       return;
     }
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(file.type)) {
+      setFileError("Choose a JPEG, PNG, WEBP or PDF.");
+      return;
+    }
+    setFileError(undefined);
     setBusy(true);
     try {
       const res = await api.uploadFile(file, "kyc");
-      if (res.docId) onChange(res.docId);
+      if (!res.docId) throw new Error("Upload did not return a document ID.");
+      onChange(res.docId);
       toast.success(`${label} uploaded.`);
     } catch (err) {
-      toast.error(errorMessage(err));
+      setFileError(errorMessage(err));
     } finally {
       setBusy(false);
     }
   };
   return (
-    <Field label={label} hint={error} error={Boolean(error)}>
-      <label className={`flex h-11 items-center justify-center rounded-lg border border-dashed text-sm cursor-pointer ${error ? "border-error text-error" : "border-gray-400"}`}>
+    <Field label={label} hint={hint} hintId={hintId} error={Boolean(hint)}>
+      <span className={`flex h-11 items-center justify-center rounded-lg border border-dashed px-2 text-center text-sm cursor-pointer focus-within:ring-2 focus-within:ring-primary ${hint ? "border-error text-error" : "border-gray-400"}`}>
         {busy ? "Uploading…" : value ? "✓ Uploaded — replace" : "Choose file"}
-        <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={pick} disabled={busy} />
-      </label>
+        <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" aria-label={label} aria-invalid={Boolean(hint)} aria-describedby={hint ? hintId : undefined} onChange={pick} disabled={busy} />
+      </span>
     </Field>
   );
 }
