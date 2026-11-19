@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef } from "react";
+import React, { Fragment, useId, useRef, useState } from "react";
 import {
   Combobox,
   ComboboxButton,
@@ -34,7 +34,7 @@ export default function CustomFloatingSelect({
   allowCustom,
 }: CustomFloatingSelectProps) {
   const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const filteredOptions =
@@ -45,7 +45,10 @@ export default function CustomFloatingSelect({
         );
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative grid min-w-0 gap-1.5", className)}>
+      <label htmlFor={inputId} className="text-sm font-medium text-light-secondary-text">
+        {label}
+      </label>
       <Combobox value={value} onChange={(val) => onChange(val || "")} nullable>
         {({ open }) => (
           <>
@@ -57,7 +60,7 @@ export default function CustomFloatingSelect({
                 )}
               >
                 <ComboboxInput
-                  ref={inputRef}
+                  id={inputId}
                   className={cn(
                     "w-full border-none py-4 pl-3.5 pr-10 text-sm leading-5 text-light-primary-text focus:outline-none bg-transparent h-14",
                     className,
@@ -88,18 +91,6 @@ export default function CustomFloatingSelect({
                   />
                 </ComboboxButton>
               </div>
-
-              <label
-                onClick={() => inputRef.current?.focus()}
-                className={cn(
-                  "absolute start-1 bg-white px-1 origin-left text-sm left-3.5 cursor-text transition-all duration-300",
-                  value || open || query
-                    ? "top-2 -translate-y-4 scale-75 text-primary"
-                    : "top-1/2 -translate-y-1/2 scale-100 text-light-disabled-text",
-                )}
-              >
-                {label}
-              </label>
 
               <Transition
                 as={Fragment}

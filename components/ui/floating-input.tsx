@@ -12,24 +12,20 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
     const inputId = id || generatedId;
 
     return (
-      <div className="relative">
+      <div className="grid min-w-0 gap-1.5">
+        <label htmlFor={inputId} className="text-sm font-medium text-light-secondary-text">
+          {label}
+        </label>
         <input
           type="text"
           id={inputId}
           className={cn(
-            "block px-3.5 py-4 w-full h-14 text-sm text-light-primary-text bg-transparent rounded-control border border-brand-border appearance-none peer",
+            "block w-full h-14 rounded-control border border-brand-border bg-transparent px-3.5 py-2 text-sm text-light-primary-text appearance-none",
             className,
           )}
-          placeholder=" "
           ref={ref}
           {...props}
         />
-        <label
-          htmlFor={inputId}
-          className="absolute text-sm text-primary duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-left left-3.5 bg-white peer-placeholder-shown:bg-transparent peer-focus:bg-white px-1 peer-focus:px-1 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:text-light-disabled-text peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1 cursor-text"
-        >
-          {label}
-        </label>
       </div>
     );
   },
