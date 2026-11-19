@@ -179,12 +179,12 @@ export function StatCard({ label, value }: { label: string; value: React.ReactNo
 export const inputClass =
   "w-full h-11 px-3.5 rounded-lg border border-gray-500/20 text-sm focus:outline-none focus:border-primary";
 
-export function Field({ label, children, hint, error = false }: { label: string; children: React.ReactNode; hint?: string; error?: boolean }) {
+export function Field({ label, children, hint, error = false, hintId }: { label: string; children: React.ReactNode; hint?: string; error?: boolean; hintId?: string }) {
   return (
     <label className="block text-sm">
       <span className="font-semibold text-light-primary-text">{label}</span>
       <div className="mt-1.5">{children}</div>
-      {hint && <span className={error ? "text-xs text-error" : "text-xs text-light-secondary-text"}>{hint}</span>}
+      {(hint || hintId) && <span id={hintId} aria-live={hintId ? "polite" : undefined} className={(hintId ? "block h-12 overflow-y-auto break-words leading-4 " : "") + (error ? "text-xs text-error" : "text-xs text-light-secondary-text")}>{hint}</span>}
     </label>
   );
 }

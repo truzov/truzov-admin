@@ -3,6 +3,7 @@ import { DM_Sans, Public_Sans, Urbanist } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
+import "./focus.css";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

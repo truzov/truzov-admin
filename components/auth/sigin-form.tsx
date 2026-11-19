@@ -156,11 +156,13 @@ export function SigninForm() {
         </Button>
       </form>
 
+      <Link href="/forgot-password" className="mt-4 inline-flex min-h-11 items-center text-sm underline">Forgot password?</Link>
+
       {mode === "seller" && (
         <p className="mt-10 text-sm text-light-secondary-text">
           New to truzov?{" "}
-          <Link href="/signup" className=" ml-2 font-bold text-primary hover:text-primary-dark">
-            Create a seller account
+          <Link href="/apply" className=" ml-2 font-bold text-primary hover:text-primary-dark">
+            Apply as a seller
           </Link>
         </p>
       )}
