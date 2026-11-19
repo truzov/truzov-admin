@@ -51,7 +51,7 @@ export default function AccommodationRevenueChart() {
       toolbar: {
         show: false,
       },
-      fontFamily: "var(--font-dm-sans)",
+      fontFamily: "var(--truzov-font)",
     },
     plotOptions: {
       bar: {

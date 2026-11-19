@@ -14,7 +14,7 @@ const COLORS = ["#C99A38", "#04342C", "#547064", "#76966C", "#A4BC92", "#BD6D4F"
 export default function OrderStatusChart({ counts }: { counts: Record<string, number> }) {
   const series = STATUSES.map((s) => counts[s] ?? 0);
   const options: ApexOptions = {
-    chart: { type: "pie", fontFamily: "var(--font-dm-sans)", toolbar: { show: false } },
+    chart: { type: "pie", fontFamily: "var(--truzov-font)", toolbar: { show: false } },
     labels: STATUSES.map((s) => s[0].toUpperCase() + s.slice(1)),
     colors: COLORS,
     stroke: { width: 0 },

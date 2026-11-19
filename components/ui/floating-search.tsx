@@ -9,13 +9,13 @@ export interface FloatingSearchProps extends React.InputHTMLAttributes<HTMLInput
 const FloatingSearch = React.forwardRef<HTMLInputElement, FloatingSearchProps>(
   ({ className, containerClassName, ...props }, ref) => {
     return (
-      <div className={cn("relative w-full", containerClassName)}>
+      <div className={cn("search-field relative w-full", containerClassName)}>
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-light-secondary-text size-5 pointer-events-none" />
         <input
           ref={ref}
           type="text"
           className={cn(
-            "block w-full h-12 rounded-full border border-gray-500/20 bg-transparent pl-10 pr-4 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-0 placeholder:text-light-secondary-text",
+            "search-input block w-full h-12 border-0 bg-transparent pl-10 pr-4 text-sm text-light-primary-text placeholder:text-light-secondary-text",
             className,
           )}
           {...props}
