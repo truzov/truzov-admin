@@ -177,7 +177,7 @@ export function StatCard({ label, value }: { label: string; value: React.ReactNo
 }
 
 export const inputClass =
-  "w-full h-11 px-3.5 rounded-lg border border-gray-500/20 text-sm focus:outline-none focus:border-primary";
+  "w-full h-[var(--truzov-control-height)] px-3.5 rounded-control border border-brand-border text-sm";
 
 export function Field({ label, children, hint, error = false, hintId }: { label: string; children: React.ReactNode; hint?: string; error?: boolean; hintId?: string }) {
   return (

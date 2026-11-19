@@ -12,24 +12,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
 
     return (
-      <div className="relative">
+      <div className="grid min-w-0 gap-1.5">
+        {label && (
+          <label htmlFor={inputId} className="text-sm font-medium text-light-secondary-text">
+            {label}
+          </label>
+        )}
         <input
           type={type}
           id={inputId}
           className={cn(
-            "block w-full rounded-full border border-gray-300 bg-transparent px-6 pb-2.5 pt-5 text-sm text-gray-900 appearance-none focus:border-primary focus:outline-none focus:ring-0 peer",
+            "block w-full rounded-control border border-brand-border bg-transparent px-6 py-3 text-sm text-light-primary-text appearance-none",
             className,
           )}
-          placeholder=""
           ref={ref}
           {...props}
         />
-        <label
-          htmlFor={inputId}
-          className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-left start-6 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 bg-white px-2 cursor-text"
-        >
-          {label}
-        </label>
       </div>
     );
   },

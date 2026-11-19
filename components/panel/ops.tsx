@@ -30,8 +30,8 @@ async function act(fn: () => Promise<unknown>, ok: string, after?: () => void) {
 function SearchBar({ onSearch, placeholder, children }: { onSearch: (q: string) => void; placeholder: string; children?: React.ReactNode }) {
   const [v, setV] = useState("");
   return (
-    <form className="flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); onSearch(v.trim()); }}>
-      <input aria-label={placeholder} placeholder={placeholder} className={inputClass + " w-56"} value={v} onChange={(e) => setV(e.target.value)} />
+    <form role="search" className="flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); onSearch(v.trim()); }}>
+      <input aria-label={placeholder} placeholder={placeholder} className={inputClass + " search-field w-56"} value={v} onChange={(e) => setV(e.target.value)} />
       {children}
       <Button type="submit" variant="outline">Search</Button>
     </form>

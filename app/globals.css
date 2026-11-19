@@ -1,12 +1,22 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-cream: #fdfbf7;
-  --color-brand-sage: #eaf3de;
-  --font-public-sans: var(--font-public-sans);
-  --font-urbanist: var(--font-urbanist);
-  --font-dm-sans: var(--font-dm-sans);
+@theme inline {
+  --color-brand-cream: var(--truzov-canvas);
+  --color-brand-sage: var(--truzov-sage);
+  --color-brand-border: var(--truzov-border);
+  --color-light-primary-text: var(--truzov-ink);
+  --color-light-secondary-text: var(--truzov-muted);
+  --color-primary-lighter: var(--truzov-sage);
+  --color-primary: var(--truzov-ink);
+  --color-primary-dark: var(--truzov-hover);
+  --color-primary-darker: var(--truzov-ink);
+  --radius-control: var(--truzov-control-radius);
+  --font-public-sans: var(--truzov-font);
+  --font-urbanist: var(--truzov-font);
+  --font-dm-sans: var(--truzov-font);
+}
 
+@theme {
   --color-accent-1: #eaf3de;
   --color-accent-2: #e8cf93;
   --color-accent-3: #d5a38e;
@@ -15,19 +25,13 @@
   --color-accent-6: #c99a38;
   --color-accent-7: #a4bc92;
 
-  --color-light-primary-text: #04342c;
-  --color-light-secondary-text: #547064;
   --color-light-disabled-text: #919eab;
 
   --color-dark-primary-text: #ffffff;
   --color-dark-secondary-text: #919eab;
   --color-dark-disabled-text: #637381;
 
-  --color-primary-lighter: #eaf3de;
   --color-primary-light: #a4bc92;
-  --color-primary: #245747;
-  --color-primary-dark: #315f4f;
-  --color-primary-darker: #04342c;
   --color-primary-alpha-16: rgba(4, 52, 44, 0.16);
 
   --color-secondary-lighter: #f4e6dc;

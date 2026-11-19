@@ -1,5 +1,11 @@
 # Sellzy Dashboard
 
+## Truzov design
+
+`app/truzov-design.css` and the Inter font files are synced from the storefront. Run `npm run dev` in both apps. Saving a shared file in the storefront updates the admin copy and reloads its styles. If admin is checked out elsewhere, set `TRUZOV_ADMIN_PATH` when starting the storefront.
+
+Include the synced files in admin changes. For a one-time sync, run `npm run design:sync -- "<admin app root>"` from the storefront. Add `--check` to verify both copies match.
+
 A comprehensive, modern Next.js admin dashboard template designed for e-commerce platforms. The Sellzy Dashboard provides a robust set of tools and interfaces to manage products, sellers, customers, orders, marketing campaigns, and extensive reporting.
 
 ## 🌟 Key Features
